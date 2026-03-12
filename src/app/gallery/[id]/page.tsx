@@ -3,6 +3,36 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { getFileUrl } from '@/lib/minio'
 import MarkdownPreview from '@/components/MarkdownPreview'
+import ImageCarousel from '@/components/ImageCarousel'
+
+async function fetchHackatimeHours(projectName: string, memberId: string): Promise<string | null> {
+  try {
+    const member = await prisma.member.findUnique({
+      where: { id: memberId },
+      select: { hackatimeToken: true },
+    })
+    if (!member?.hackatimeToken) return null
+
+    const res = await fetch('https://hackatime.hackclub.com/api/v1/authenticated/projects', {
+      headers: { Authorization: `Bearer ${member.hackatimeToken}` },
+      next: { revalidate: 3600 },
+    })
+    if (!res.ok) return null
+
+    const data = await res.json() as { projects: { name: string; total_seconds: number }[] }
+    const project = (data.projects ?? []).find(
+      (p) => p.name.toLowerCase() === projectName.toLowerCase()
+    )
+    if (!project?.total_seconds) return null
+
+    const hours = Math.floor(project.total_seconds / 3600)
+    const minutes = Math.floor((project.total_seconds % 3600) / 60)
+    if (hours === 0) return `${minutes}m`
+    return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`
+  } catch {
+    return null
+  }
+}
 
 export default async function GalleryProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -10,7 +40,7 @@ export default async function GalleryProjectPage({ params }: { params: Promise<{
   const project = await prisma.project.findUnique({
     where: { id, status: 'APPROVED' },
     include: {
-      member: { select: { name: true } },
+      member: { select: { id: true, name: true } },
       images: { orderBy: { createdAt: 'asc' } },
       devlogs: {
         where: { status: 'APPROVED' },
@@ -23,6 +53,10 @@ export default async function GalleryProjectPage({ params }: { params: Promise<{
   })
 
   if (!project) notFound()
+
+  const codingHours = project.hackatimeProject
+    ? await fetchHackatimeHours(project.hackatimeProject, project.member.id)
+    : null
 
   return (
     <div className="container" style={{ paddingTop: 'var(--space-5)', paddingBottom: 'var(--space-6)' }}>
@@ -43,9 +77,28 @@ export default async function GalleryProjectPage({ params }: { params: Promise<{
         }}>
           <p style={{ margin: '0 0 0.35rem', color: 'var(--muted)', fontSize: '0.7rem', letterSpacing: '0.12em', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{'// PROJECT'}</p>
           <h1 className="glow-red" style={{ margin: '0 0 0.35rem', letterSpacing: '-0.02em' }}>{project.title || 'Untitled project'}</h1>
-          <p style={{ margin: '0 0 1.25rem', color: 'var(--muted)', fontSize: '0.85rem', fontFamily: 'var(--font-mono)' }}>
-            by {project.member.name}
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+            <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.85rem', fontFamily: 'var(--font-mono)' }}>
+              by {project.member.name}
+            </p>
+            {codingHours && (
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                padding: '0.2rem 0.6rem',
+                borderRadius: 'var(--radius-pill)',
+                background: 'rgba(255, 140, 55, 0.1)',
+                border: '1px solid rgba(255, 140, 55, 0.25)',
+                color: 'var(--orange)',
+                fontSize: '0.75rem',
+                fontFamily: 'var(--font-mono)',
+                fontWeight: 700,
+              }}>
+                ⏱ {codingHours} coded
+              </span>
+            )}
+          </div>
 
           {/* Links + tags */}
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -91,22 +144,9 @@ export default async function GalleryProjectPage({ params }: { params: Promise<{
         {project.images.length > 0 && (
           <section className="stack">
             <h2 style={{ margin: 0, fontSize: '1.15rem' }}>Screenshots</h2>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: 'var(--space-2)',
-            }}>
-              {project.images.map((image) => (
-                <a key={image.id} href={getFileUrl(image.minioKey)} target="_blank" rel="noreferrer"
-                  style={{ display: 'block', borderRadius: 'var(--radius)', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                  <img
-                    src={getFileUrl(image.minioKey)}
-                    alt={image.originalFilename}
-                    style={{ width: '100%', height: 220, objectFit: 'cover', display: 'block', transition: 'transform 300ms ease' }}
-                  />
-                </a>
-              ))}
-            </div>
+            <ImageCarousel
+              images={project.images.map((img) => ({ id: img.id, src: getFileUrl(img.minioKey), alt: img.originalFilename }))}
+            />
           </section>
         )}
 
@@ -122,21 +162,6 @@ export default async function GalleryProjectPage({ params }: { params: Promise<{
             <div className="stack">
               {project.devlogs.map((devlog) => (
                 <article key={devlog.id} className="card stack" style={{ padding: 0, overflow: 'hidden' }}>
-                  {devlog.images.length > 0 && (
-                    <div style={{ position: 'relative' }}>
-                      <img
-                        src={getFileUrl(devlog.images[0].minioKey)}
-                        alt={devlog.images[0].originalFilename}
-                        style={{ width: '100%', maxHeight: 280, objectFit: 'cover', display: 'block' }}
-                      />
-                      <div style={{
-                        position: 'absolute',
-                        inset: 0,
-                        background: 'repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px)',
-                        pointerEvents: 'none',
-                      }} />
-                    </div>
-                  )}
                   <div style={{ padding: 'var(--space-3)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     <div>
                       <h3 style={{ margin: 0, fontSize: '1rem' }}>{devlog.title || 'Untitled devlog'}</h3>
@@ -145,23 +170,12 @@ export default async function GalleryProjectPage({ params }: { params: Promise<{
                       </p>
                     </div>
                     <MarkdownPreview source={devlog.body} fallback="No content." />
-                    {devlog.images.length > 1 && (
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-                        gap: '0.5rem',
-                      }}>
-                        {devlog.images.slice(1).map((img) => (
-                          <a key={img.id} href={getFileUrl(img.minioKey)} target="_blank" rel="noreferrer"
-                            style={{ display: 'block', borderRadius: 'var(--radius-sm)', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                            <img
-                              src={getFileUrl(img.minioKey)}
-                              alt={img.originalFilename}
-                              style={{ width: '100%', height: 120, objectFit: 'cover', display: 'block' }}
-                            />
-                          </a>
-                        ))}
-                      </div>
+                    {devlog.images.length > 0 && (
+                      <ImageCarousel
+                        images={devlog.images.map((img) => ({ id: img.id, src: getFileUrl(img.minioKey), alt: img.originalFilename }))}
+                        thumbHeight={160}
+                        thumbMinWidth={200}
+                      />
                     )}
                   </div>
                 </article>

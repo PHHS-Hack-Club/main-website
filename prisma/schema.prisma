@@ -31,8 +31,9 @@ model Member {
   hackClubSub String   @unique @map("hack_club_sub")
   email       String   @unique
   name        String
-  role        Role     @default(MEMBER)
-  createdAt   DateTime @default(now()) @map("created_at")
+  role            Role     @default(MEMBER)
+  hackatimeToken  String?  @map("hackatime_token")
+  createdAt       DateTime @default(now()) @map("created_at")
 
   projects Project[]
   devlogs  Devlog[]
@@ -45,9 +46,10 @@ model Project {
   memberId    String           @map("member_id")
   title       String           @default("")
   description String           @default("")
-  githubUrl   String?          @map("github_url")
-  demoUrl     String?          @map("demo_url")
-  tags        String[]         @default([])
+  githubUrl        String?          @map("github_url")
+  demoUrl          String?          @map("demo_url")
+  tags             String[]         @default([])
+  hackatimeProject String?          @map("hackatime_project")
   status      SubmissionStatus @default(DRAFT)
   createdAt   DateTime         @default(now()) @map("created_at")
   updatedAt   DateTime         @updatedAt @map("updated_at")

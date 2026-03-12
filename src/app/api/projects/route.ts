@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
       githubUrl: body.githubUrl || null,
       demoUrl: body.demoUrl || null,
       tags: Array.isArray(body.tags) ? body.tags : [],
+      hackatimeProject: body.hackatimeProject || null,
       status: body.submit ? 'PENDING' : 'DRAFT',
     },
   })

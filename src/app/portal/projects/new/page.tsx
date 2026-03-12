@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import ImageUpload, { UploadedImage } from '@/components/ImageUpload'
 import MarkdownEditor from '@/components/MarkdownEditor'
@@ -9,6 +9,7 @@ import Toast, { ToastMessage } from '@/components/Toast'
 
 export default function NewProjectPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const projectIdRef = useRef<string | null>(null)
 
@@ -18,9 +19,15 @@ export default function NewProjectPage() {
   const [demoUrl, setDemoUrl] = useState('')
   const [tags, setTags] = useState('')
   const [images, setImages] = useState<UploadedImage[]>([])
+  const [hackatimeProject, setHackatimeProject] = useState('')
   const [saving, setSaving] = useState(false)
   const [toasts, setToasts] = useState<ToastMessage[]>([])
   const [error, setError] = useState('')
+
+  // Hackatime connection state
+  const [hackatimeConnected, setHackatimeConnected] = useState(false)
+  const [hackatimeProjects, setHackatimeProjects] = useState<string[]>([])
+  const [hackatimeLoading, setHackatimeLoading] = useState(true)
 
   const addToast = useCallback((text: string, variant: 'success' | 'error') => {
     const id = `${Date.now()}-${Math.random()}`
@@ -30,6 +37,27 @@ export default function NewProjectPage() {
   const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id))
   }, [])
+
+  // Fetch Hackatime connection status on mount
+  useEffect(() => {
+    fetch('/api/hackatime/projects')
+      .then((r) => r.json())
+      .then((data) => {
+        setHackatimeConnected(data.connected ?? false)
+        setHackatimeProjects(data.projects ?? [])
+      })
+      .catch(() => {})
+      .finally(() => setHackatimeLoading(false))
+  }, [])
+
+  // Show toast if just connected via OAuth
+  useEffect(() => {
+    if (searchParams.get('hackatime_connected') === '1') {
+      addToast('Hackatime connected!', 'success')
+    } else if (searchParams.get('hackatime_error')) {
+      addToast('Failed to connect Hackatime', 'error')
+    }
+  }, [searchParams, addToast])
 
   // Debounced auto-save (3.5s)
   useEffect(() => {
@@ -46,7 +74,7 @@ export default function NewProjectPage() {
           const response = await fetch(`/api/projects/${projectIdRef.current}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, description, githubUrl, demoUrl, tags: tagList, images: imagePayload, submit: false }),
+            body: JSON.stringify({ title, description, githubUrl, demoUrl, tags: tagList, images: imagePayload, hackatimeProject: hackatimeProject || null, submit: false }),
           })
           if (response.ok) {
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -56,7 +84,7 @@ export default function NewProjectPage() {
           const response = await fetch('/api/projects', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, description, githubUrl, demoUrl, tags: tagList, images: imagePayload, submit: false }),
+            body: JSON.stringify({ title, description, githubUrl, demoUrl, tags: tagList, images: imagePayload, hackatimeProject: hackatimeProject || null, submit: false }),
           })
           if (response.ok) {
             const project = await response.json()
@@ -75,7 +103,7 @@ export default function NewProjectPage() {
         clearTimeout(autoSaveTimeoutRef.current)
       }
     }
-  }, [title, description, githubUrl, demoUrl, tags, images, addToast])
+  }, [title, description, githubUrl, demoUrl, tags, images, hackatimeProject, addToast])
 
   async function save(submit: boolean) {
     setSaving(true)
@@ -93,49 +121,40 @@ export default function NewProjectPage() {
       return
     }
 
+    if (submit && !hackatimeProject) {
+      setError('Select a Hackatime project to show coding hours on your submission.')
+      setSaving(false)
+      return
+    }
+
     try {
       const body = {
         title,
         description,
         githubUrl,
         demoUrl,
-        tags: tags
-          .split(',')
-          .map((tag) => tag.trim())
-          .filter(Boolean),
-        images: images.map((image) => ({
-          key: image.key,
-          filename: image.filename,
-        })),
+        tags: tags.split(',').map((tag) => tag.trim()).filter(Boolean),
+        images: images.map((image) => ({ key: image.key, filename: image.filename })),
+        hackatimeProject: hackatimeProject || null,
         submit,
       }
 
       if (projectIdRef.current) {
-        // Update existing draft
         const response = await fetch(`/api/projects/${projectIdRef.current}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         })
-
-        if (!response.ok) {
-          throw new Error('Failed to update project')
-        }
-
+        if (!response.ok) throw new Error('Failed to update project')
         const project = await response.json()
         router.push(`/portal/projects/${project.id}`)
       } else {
-        // Create new project
         const response = await fetch('/api/projects', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         })
-
-        if (!response.ok) {
-          throw new Error('Failed to save project')
-        }
-
+        if (!response.ok) throw new Error('Failed to save project')
         const project = await response.json()
         router.push(`/portal/projects/${project.id}`)
       }
@@ -145,6 +164,11 @@ export default function NewProjectPage() {
       setSaving(false)
     }
   }
+
+  // Build the returnTo URL for Hackatime OAuth — include the draft project id if we have one
+  const hackatimeLoginUrl = `/api/auth/hackatime/login?returnTo=${encodeURIComponent(
+    projectIdRef.current ? `/portal/projects/${projectIdRef.current}/edit` : '/portal/projects/new'
+  )}`
 
   return (
     <>
@@ -168,6 +192,51 @@ export default function NewProjectPage() {
         onUpload={(image) => setImages((current) => [...current, image])}
         onRemove={(key) => setImages((current) => current.filter((image) => image.key !== key))}
       />
+
+      {/* Hackatime */}
+      <div
+        className="surface"
+        style={{ padding: 'var(--space-3)', borderRadius: 'var(--radius)', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <div>
+            <p style={{ margin: 0, fontWeight: 700, fontSize: '0.9rem' }}>
+              Hackatime
+              {hackatimeConnected && (
+                <span style={{ marginLeft: '0.5rem', color: 'var(--green)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}>● connected</span>
+              )}
+            </p>
+            <p style={{ margin: '0.15rem 0 0', color: 'var(--muted)', fontSize: '0.8rem' }}>
+              Link a Hackatime project to show coding hours on your gallery page.
+            </p>
+          </div>
+          {!hackatimeConnected && !hackatimeLoading && (
+            <a href={hackatimeLoginUrl} className="btn-outline" style={{ fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
+              Connect Hackatime →
+            </a>
+          )}
+        </div>
+
+        {hackatimeConnected && (
+          hackatimeProjects.length === 0 ? (
+            <p style={{ margin: 0, color: 'var(--dim)', fontSize: '0.82rem', fontFamily: 'var(--font-mono)' }}>
+              No Hackatime projects found yet — start coding and they&apos;ll appear here.
+            </p>
+          ) : (
+            <select
+              value={hackatimeProject}
+              onChange={(e) => setHackatimeProject(e.target.value)}
+              className="field"
+              style={{ fontFamily: 'var(--font-mono)', fontSize: '0.88rem' }}
+            >
+              <option value="">— select a project *</option>
+              {hackatimeProjects.map((p) => (
+                <option key={p} value={p}>{p}</option>
+              ))}
+            </select>
+          )
+        )}
+      </div>
 
       {error && <p style={{ color: 'var(--red)', margin: 0 }}>{error}</p>}
 

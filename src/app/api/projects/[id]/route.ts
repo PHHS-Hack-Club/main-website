@@ -66,6 +66,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       githubUrl: body.githubUrl !== undefined ? body.githubUrl || null : project.githubUrl,
       demoUrl: body.demoUrl !== undefined ? body.demoUrl || null : project.demoUrl,
       tags: Array.isArray(body.tags) ? body.tags : project.tags,
+      hackatimeProject: body.hackatimeProject !== undefined ? (body.hackatimeProject || null) : project.hackatimeProject,
       status: body.submit ? 'PENDING' : project.status === 'REJECTED' ? 'DRAFT' : project.status,
     },
   })
