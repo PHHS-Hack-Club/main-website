@@ -1,0 +1,35 @@
+{
+  "name": "phhs-site",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3007",
+    "build": "next build",
+    "start": "next start -p 3007",
+    "lint": "next lint",
+    "prisma:generate": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "5.22.0",
+    "@uiw/react-md-editor": "4.0.11",
+    "jose": "6.2.1",
+    "minio": "8.0.7",
+    "next": "^16.1.6",
+    "nodemailer": "8.0.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-markdown": "9.0.3",
+    "rehype-raw": "7.0.0",
+    "remark-gfm": "4.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.19.37",
+    "@types/nodemailer": "7.0.11",
+    "@types/react": "18.3.28",
+    "@types/react-dom": "18.3.7",
+    "eslint": "8.57.1",
+    "eslint-config-next": "14.2.35",
+    "prisma": "5.22.0",
+    "typescript": "5.9.3"
+  }
+}
