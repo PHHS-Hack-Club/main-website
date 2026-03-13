@@ -165,7 +165,7 @@ export default function NewProjectPage() {
     }
   }
 
-  // Build the returnTo URL for Hackatime OAuth — include the draft project id if we have one
+  // Build the returnTo URL for Hackatime OAuth include the draft project id if we have one
   const hackatimeLoginUrl = `/api/auth/hackatime/login?returnTo=${encodeURIComponent(
     projectIdRef.current ? `/portal/projects/${projectIdRef.current}/edit` : '/portal/projects/new'
   )}`
@@ -220,7 +220,7 @@ export default function NewProjectPage() {
         {hackatimeConnected && (
           hackatimeProjects.length === 0 ? (
             <p style={{ margin: 0, color: 'var(--dim)', fontSize: '0.82rem', fontFamily: 'var(--font-mono)' }}>
-              No Hackatime projects found yet — start coding and they&apos;ll appear here.
+              No Hackatime projects found yet  start coding and they&apos;ll appear here.
             </p>
           ) : (
             <select
@@ -229,7 +229,7 @@ export default function NewProjectPage() {
               className="field"
               style={{ fontFamily: 'var(--font-mono)', fontSize: '0.88rem' }}
             >
-              <option value="">— select a project *</option>
+              <option value=""> select a project *</option>
               {hackatimeProjects.map((p) => (
                 <option key={p} value={p}>{p}</option>
               ))}

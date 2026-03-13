@@ -6,11 +6,11 @@ Built with Next.js 16, Prisma, PostgreSQL, and MinIO.
 
 ## Features
 
-- **Public site** — home, about, events, gallery, donate pages
-- **Member portal** — project + devlog creation with markdown editor, image uploads, auto-save drafts
-- **Gallery** — approved projects with full detail pages (screenshots, devlogs, rendered markdown)
-- **Admin panel** — submission review queue, member management, verification approvals
-- **Auth** — Hack Club OAuth + JWT session cookies, role-based access (PRESIDENT / VP / MEMBER)
+- **Public site**  home, about, events, gallery, donate pages
+- **Member portal**  project + devlog creation with markdown editor, image uploads, auto-save drafts
+- **Gallery**  approved projects with full detail pages (screenshots, devlogs, rendered markdown)
+- **Admin panel**  submission review queue, member management, verification approvals
+- **Auth**  Hack Club OAuth + JWT session cookies, role-based access (PRESIDENT / VP / MEMBER)
 
 ## Stack
 

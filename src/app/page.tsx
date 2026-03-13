@@ -4,11 +4,11 @@ import { getSession } from '@/lib/auth'
 const highlights = [
   {
     title: 'Build & Ship',
-    body: 'Learn by doing — websites, games, 3D-printed objects, and whatever else you want to make. Every finished project gets celebrated.',
+    body: 'Learn by doing websites, games, 3D-printed objects, and whatever else you want to make. Every finished project gets celebrated.',
   },
   {
     title: 'Real Perks (YSWS)',
-    body: 'Ship a qualifying project and Hack Club HQ will mail you hardware grants — Raspberry Pis, Sprig consoles, custom domains, and more.',
+    body: 'Ship a qualifying project and Hack Club HQ will mail you hardware grants Raspberry Pis, Sprig consoles, custom domains, and more.',
   },
   {
     title: 'Student-Led, Always',
@@ -19,7 +19,7 @@ const highlights = [
 const semesterPlan = [
   { month: 'OCT', label: 'Web Dev', desc: 'Build a personal site with HTML, CSS & JS. Leave with a live URL.' },
   { month: 'NOV', label: 'Game Dev', desc: 'Build a Sprig game. Ship it to the gallery and get a physical console.' },
-  { month: 'DEC', label: '3D / CAD', desc: 'Design your first 3D-printable object — keychains, desk toys, whatever.' },
+  { month: 'DEC', label: '3D / CAD', desc: 'Design your first 3D-printable object keychains, desk toys, whatever.' },
   { month: 'JAN', label: 'Demo Day', desc: 'Present what you built. Show it off. Ship it into the world.' },
 ]
 
@@ -104,7 +104,7 @@ export default async function HomePage({
               Hack Club
             </h1>
             <p style={{ color: 'var(--muted)', fontSize: '1.05rem', maxWidth: 560, marginTop: '1rem' }}>
-              Pascack Hills High School&apos;s chapter of the global Hack Club network. We meet weekly to build websites, games, and 3D-printed things — no experience required.
+              Pascack Hills High School&apos;s chapter of the global Hack Club network. We meet weekly to build websites, games, and 3D-printed things no experience required.
             </p>
           </div>
           <div style={{ display: 'flex', gap: '0.875rem', flexWrap: 'wrap' }}>
@@ -172,7 +172,7 @@ export default async function HomePage({
           <div>
             <p style={{ margin: '0 0 0.75rem', color: 'var(--muted)', fontSize: '0.7rem', letterSpacing: '0.12em', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{'// ABOUT HACK CLUB'}</p>
             <p style={{ margin: 0, lineHeight: 1.8, color: 'var(--muted)', fontSize: '0.95rem' }}>
-              Hack Club is a global non-profit network of 4,000+ high school coding clubs. We&apos;re not about cybersecurity hacking — in the maker world, a &ldquo;hacker&rdquo; is someone who builds things with technology. Think of it as modern-day scouts, but for coders and makers.
+              Hack Club is a global non-profit network of 4,000+ high school coding clubs. We&apos;re not about cybersecurity hacking in the maker world, a &ldquo;hacker&rdquo; is someone who builds things with technology. Think of it as modern-day scouts, but for coders and makers.
             </p>
           </div>
           <div>

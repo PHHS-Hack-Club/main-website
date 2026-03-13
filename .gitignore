@@ -22,6 +22,7 @@ next-env.d.ts
 
 # prisma generated
 /src/generated/prisma
+docker-compose.yml
 
 # misc
 .DS_Store

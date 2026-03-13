@@ -17,7 +17,7 @@ export default function DonatePage() {
             <div>
               <p style={{ margin: '0 0 0.25rem', fontWeight: 700, fontSize: '1rem' }}>One-time or recurring donation</p>
               <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.7 }}>
-                Every dollar goes directly toward club operations — 3D printing filament, domain costs, hardware, and events. No overhead, no middlemen.
+                Every dollar goes directly toward club operations 3D printing filament, domain costs, hardware, and events. No overhead, no middlemen.
               </p>
             </div>
             <a

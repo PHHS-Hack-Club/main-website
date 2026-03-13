@@ -1,19 +1,20 @@
 import Link from 'next/link'
 
 const whatWeBuild = [
-  { label: 'Web Apps', desc: 'Personal sites, full-stack tools, APIs, dashboards — shipped to a real URL.' },
+  { label: 'Web Apps', desc: 'Personal sites, full-stack tools, APIs, dashboards shipped to a real URL.' },
   { label: 'Games', desc: 'Browser games, Sprig cartridges, Unity experiments. Playable, not just planned.' },
-  { label: '3D Printing', desc: 'CAD models turned into physical objects — keychains, desk organizers, props.' },
+  { label: '3D Printing', desc: 'CAD models turned into physical objects keychains, desk organizers, props.' },
   { label: 'Hardware', desc: 'Microcontrollers, sensors, circuits. Code that talks to the physical world.' },
   { label: 'Bots & Scripts', desc: 'Discord bots, automation scripts, CLI tools, scraping projects.' },
   { label: 'Whatever Else', desc: "There's no curriculum. If you want to build it, we'll help you figure it out." },
 ]
 
 const steps = [
-  { num: '01', title: 'Get a Hack Club account', desc: 'Sign up at hackclub.com — it\'s free and connects you to a global community of student hackers.' },
-  { num: '02', title: 'Come to a meeting', desc: 'Show up on meeting day. No application, no tryout. Just show up ready to build something.' },
-  { num: '03', title: 'Start a project', desc: 'Pick something you actually want to make. We help you scope it, start it, and ship it.' },
-  { num: '04', title: 'Ship & share', desc: 'Post a devlog, submit to the gallery, and get feedback from the club. Repeat.' },
+  { num: '01', title: 'Get a Hack Club account', desc: 'Be a Pascack Hills Student, then sign up at hackclub.com it\'s free and connects you to a global community of student hackers.' },
+  { num: '02', title: 'Come to a meeting', desc: 'Show up on a meeting day ready to build something.' },
+  { num: '03', title: 'Come to a meeting', desc: 'Attend regularly to learn more skills through our weekly workshops.' },
+  { num: '04', title: 'Start a project', desc: 'Pick something you actually want to make. We help you scope it, start it, and ship it.' },
+  { num: '05', title: 'Ship & share', desc: 'Post a devlog, submit to the gallery, and get feedback from the club. Repeat.' },
 ]
 
 const values = [
@@ -23,7 +24,7 @@ const values = [
   },
   {
     label: 'No gatekeeping',
-    desc: "Beginners and veterans work in the same room. If you don't know something, someone here does — or we figure it out together.",
+    desc: "Beginners and veterans work in the same room. If you don't know something, someone here does or we figure it out together.",
   },
   {
     label: 'Transparent by default',
@@ -43,7 +44,7 @@ export default function AboutPage() {
           <p style={{ color: 'var(--muted)', maxWidth: 680, lineHeight: 1.8, margin: 0, fontSize: '1rem' }}>
             PHHS Hack Club is the Pascack Hills chapter of the global{' '}
             <a href="https://hackclub.com" target="_blank" rel="noreferrer" style={{ color: 'var(--orange)' }}>Hack Club</a>{' '}
-            network. We&apos;re a student-run programming club for people who want to make real things —
+            network. We&apos;re a student-run programming club for people who want to make real things
             websites, games, hardware experiments, bots, 3D-printed objects, and whatever else.
             No experience required. No grades. Just building.
           </p>
@@ -112,9 +113,9 @@ export default function AboutPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
               {[
                 { k: 'Day', v: 'Every Thursday' },
-                { k: 'Time', v: '2:45 – 4:00 PM' },
-                { k: 'Location', v: 'Room 219 · Pascack Hills HS' },
-                { k: 'Open to', v: 'All PHHS students — any grade, any skill level' },
+                { k: 'Time', v: '3:00 – 4:00 PM' },
+                { k: 'Location', v: 'Room 255 · Pascack Hills HS' },
+                { k: 'Open to', v: 'All PHHS students - any grade, any skill level' },
               ].map(({ k, v }) => (
                 <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.65rem' }}>
                   <span style={{ color: 'var(--dim)', fontSize: '0.8rem', fontFamily: 'var(--font-mono)', minWidth: 80 }}>{k}</span>
@@ -127,12 +128,12 @@ export default function AboutPage() {
           <div className="card">
             <p style={{ margin: '0 0 0.75rem', color: 'var(--muted)', fontSize: '0.7rem', letterSpacing: '0.12em', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{'// HACK CLUB NETWORK'}</p>
             <p style={{ margin: '0 0 1rem', color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.75 }}>
-              We&apos;re one of 4,000+ high school chapters in the global Hack Club network — a 501(c)(3) non-profit run from Burlington, Vermont.
+              We&apos;re one of 4,000+ high school chapters in the global Hack Club network a 501(c)(3) non-profit run from Burlington, Vermont.
               Members get access to free credits, hardware grants, and events like Hackathons put on by HQ.
             </p>
             <p style={{ margin: '0 0 1.25rem', color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.75 }}>
               Our finances are managed transparently through{' '}
-              <a href="https://hcb.hackclub.com" target="_blank" rel="noreferrer" style={{ color: 'var(--orange)' }}>Hack Club Bank (HCB)</a> —
+              <a href="https://hcb.hackclub.com" target="_blank" rel="noreferrer" style={{ color: 'var(--orange)' }}>Hack Club Bank (HCB)</a>
               every transaction is publicly visible.
             </p>
             <a href="https://hackclub.com" target="_blank" rel="noreferrer" className="btn-outline" style={{ fontSize: '0.88rem' }}>

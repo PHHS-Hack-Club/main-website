@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────────────────────────
-   Phantom Sans — Hack Club brand font
+  Phantom Sans  Hack Club brand font
 ───────────────────────────────────────────────────────────────── */
 @font-face {
   font-family: 'Phantom Sans';
@@ -33,7 +33,7 @@
    Tokens
 ───────────────────────────────────────────────────────────────── */
 :root {
-  /* backgrounds — warm dark brown-black */
+  /* backgrounds  warm dark brown-black */
   --bg:       #0e0c14;
   --surface:  #16141f;
   --raised:   #1e1b2a;
@@ -274,7 +274,7 @@ main {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: var(--space-4);
-  /* subtle inner glow at top edge — terminal readout feel */
+  /* subtle inner glow at top edge  terminal readout feel */
   box-shadow: inset 0 1px 0 rgba(200, 190, 255, 0.06), 0 2px 12px rgba(0,0,0,0.25);
 }
 
