@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: phhs_hack_club
+      POSTGRES_USER: phhs
+      POSTGRES_PASSWORD: password
+    ports:
+      - '5434:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U phhs -d phhs_hack_club']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ':9001'
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - '9002:9000'
+      - '9003:9001'
+    volumes:
+      - minio_data:/data
+
+volumes:
+  postgres_data:
+  minio_data:
