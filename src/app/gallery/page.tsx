@@ -139,12 +139,12 @@ export default async function GalleryPage() {
                     )}
                     <div style={{ padding: '0.65rem var(--space-3) var(--space-3)', display: 'flex', flexDirection: 'column', gap: '0.35rem', flex: 1 }}>
                       <div>
-                        <h3 style={{ marginTop: 0, marginBottom: '0.25rem', fontSize: '1rem' }}>{project.title || 'Untitled project'}</h3>
+                        <h3 style={{ marginTop: 0, marginBottom: '0.25rem', fontSize: '1.15rem' }}>{project.title || 'Untitled project'}</h3>
                         <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>by {project.member.name}</p>
                       </div>
-                      <div style={{ fontSize: '0.8rem', lineHeight: 1.5, color: 'var(--muted)' }}>
+                      {/* <div style={{ fontSize: '0.8rem', lineHeight: 1.5, color: 'var(--muted)' }}>
                         <MarkdownPreview source={project.description.slice(0, 180)} fallback="No description provided." />
-                      </div>
+                      </div> */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '0.25rem' }}>
                         <p style={{ color: 'var(--orange)', margin: 0, fontSize: '0.8rem', fontWeight: 700 }}>
                           View project →
