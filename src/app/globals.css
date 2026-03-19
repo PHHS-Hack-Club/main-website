@@ -93,10 +93,6 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
 body {
   margin: 0;
   background: var(--bg);
@@ -624,7 +620,7 @@ select.field:focus {
 }
 
 .glow-red {
-  text-shadow: 0 0 60px rgba(236, 55, 80, 0.3);
+  text-shadow: 0 0 24px rgba(236, 55, 80, 0.2);
 }
 
 /* ─────────────────────────────────────────────────────────────────
@@ -635,6 +631,10 @@ select.field:focus {
   position: fixed;
   inset: 0;
   z-index: 9900;
+  /* own GPU layer — scroll never triggers a repaint of this overlay */
+  will-change: transform;
+  transform: translateZ(0);
+  contain: strict;
 }
 
 .crt-scanlines {
@@ -793,5 +793,20 @@ select.field:focus {
   .grid-cards {
     grid-template-columns: repeat(2, 1fr);
     justify-content: unset;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

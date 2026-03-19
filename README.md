@@ -1,70 +1,222 @@
-# PHHS Hack Club
+# PHHS Hack Club Website
 
-Website for Pascack Hills High School's chapter of the global [Hack Club](https://hackclub.com) network.
+Official website and member portal for Pascack Hills High School's Hack Club chapter.
 
-Built with Next.js 16, Prisma, PostgreSQL, and MinIO.
+This project includes the public-facing club site, a member portal for submitting projects and devlogs, a gallery for approved work, and an admin panel for managing member verification and submissions.
 
-## Features
+## What The Site Does
 
-- **Public site**  home, about, events, gallery, donate pages
-- **Member portal**  project + devlog creation with markdown editor, image uploads, auto-save drafts
-- **Gallery**  approved projects with full detail pages (screenshots, devlogs, rendered markdown)
-- **Admin panel**  submission review queue, member management, verification approvals
-- **Auth**  Hack Club OAuth + JWT session cookies, role-based access (PRESIDENT / VP / MEMBER)
+- Publishes public pages for the club, including the home page, about page, events page, gallery, donate page, contact page, members page, and Hackatime leaderboard
+- Lets verified members sign in with Hack Club OAuth
+- Gives members a portal to create projects, write devlogs in Markdown, upload images, and submit work for review
+- Shows approved projects in a public gallery with screenshots, rendered Markdown, and coding-hour data from Hackatime
+- Gives club admins tools to approve verification requests, review submissions, and manage member roles
 
-## Stack
+## Tech Stack
 
-| Layer | Tech |
-|---|---|
-| Framework | Next.js 16 (App Router, Turbopack) |
-| Database | PostgreSQL via Prisma |
-| File storage | MinIO (S3-compatible) |
-| Auth | Hack Club OAuth + jose JWT |
-| Styling | CSS variables, Phantom Sans |
-| Process manager | PM2 |
+| Layer | Technology |
+| --- | --- |
+| Framework | Next.js App Router + React + TypeScript |
+| Database | PostgreSQL |
+| ORM | Prisma |
+| File storage | MinIO (S3-compatible object storage) |
+| Authentication | Hack Club OAuth + signed JWT session cookies |
+| Email | Nodemailer |
+| Content editing | Markdown editor + Markdown preview |
+| Deployment | PM2 |
 
-## Getting Started
+## Core Features
+
+### Public Site
+
+- Home, about, events, gallery, donate, contact, members, and leaderboard pages
+- Club information, meeting schedule, and donation messaging
+- Public gallery pages for approved student projects
+- Members directory with roles, approved-project counts, and optional profile pictures
+- Monthly Hackatime leaderboard
+
+### Member Portal
+
+- Hack Club OAuth login flow
+- Project creation and editing
+- Devlog creation and editing
+- Image uploads backed by MinIO
+- Markdown-based writing flow
+- Draft and submission status tracking
+- Debounced autosave for project drafts
+- Optional Hackatime project linking so gallery pages can display coding hours
+
+### Admin Tools
+
+- Verification request approval flow
+- Submission review queue for projects and devlogs
+- Member management with role-based access
+
+## Local Development
 
 ### Prerequisites
 
 - Node.js 20+
-- PostgreSQL
-- MinIO instance
+- Docker and Docker Compose
 
-### Setup
+### 1. Install dependencies
 
 ```bash
 npm install
+```
+
+### 2. Start local services
+
+This repo includes local PostgreSQL and MinIO containers:
+
+```bash
+docker compose up -d
+```
+
+Default local ports:
+
+- App: `3007`
+- PostgreSQL: `5434`
+- MinIO API: `9002`
+- MinIO Console: `9003`
+
+### 3. Configure environment variables
+
+```bash
 cp .env.example .env
-# fill in .env values
+```
+
+Then fill in the required values for Hack Club OAuth, Hackatime OAuth, SMTP, admin email, and JWT signing.
+
+### 4. Set up the database
+
+```bash
+npx prisma generate
 npx prisma migrate dev
+```
+
+### 5. Start the app
+
+```bash
 npm run dev
 ```
 
-App runs on `http://localhost:3007`.
+Open `http://localhost:3007`.
 
-### Environment Variables
+## Environment Variables
 
-See `.env.example` for all required variables. Key ones:
+The full template lives in [`.env.example`](/srv/md0/hackclub/phhs-site/.env.example).
+
+### Database
 
 ```env
-DATABASE_URL=           # PostgreSQL connection string
-MINIO_ENDPOINT=         # MinIO hostname (no protocol)
-MINIO_PORT=             # MinIO port
-MINIO_USE_SSL=          # true/false
+DATABASE_URL=
+```
+
+### MinIO
+
+```env
+MINIO_ENDPOINT=
+MINIO_PORT=
 MINIO_ACCESS_KEY=
 MINIO_SECRET_KEY=
-MINIO_BUCKET=           # bucket name
-MINIO_PUBLIC_URL=       # public-facing base URL for images (e.g. https://minio.example.com/bucket)
-HACKCLUB_CLIENT_ID=     # Hack Club OAuth app ID
-HACKCLUB_CLIENT_SECRET=
-HACKCLUB_REDIRECT_URI=  # must match OAuth app config
-JWT_SECRET=             # random secret for signing session tokens
+MINIO_BUCKET=
+MINIO_USE_SSL=
+MINIO_PUBLIC_URL=
 ```
+
+`MINIO_PUBLIC_URL` should point to the public base path for the configured bucket, for example `http://localhost:9002/phhs-uploads`.
+
+### Hack Club Auth
+
+```env
+HACKCLUB_CLIENT_ID=
+HACKCLUB_CLIENT_SECRET=
+HACKCLUB_REDIRECT_URI=
+```
+
+### Hackatime Auth
+
+```env
+HACKATIME_CLIENT_ID=
+HACKATIME_CLIENT_SECRET=
+HACKATIME_REDIRECT_URI=
+```
+
+### Email
+
+```env
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+CONTACT_EMAIL_TO=
+```
+
+### Admin / Session
+
+```env
+ADMIN_EMAIL=
+JWT_SECRET=
+```
+
+## Available Commands
+
+```bash
+npm run dev
+npm run build
+npm run start
+npm run lint
+npm run prisma:generate
+```
+
+Useful Prisma commands:
+
+```bash
+npx prisma migrate dev
+npx prisma migrate deploy
+npx prisma studio
+```
+
+## Project Structure
+
+```text
+src/
+  app/
+    api/            route handlers
+    admin/          admin dashboard pages
+    portal/         member portal pages
+    about/          public pages
+    contact/
+    donate/
+    events/
+    gallery/
+    leaderboard/
+    members/
+  components/       shared UI and client components
+  lib/              auth, Prisma, MinIO, and server utilities
+prisma/
+  schema.prisma     database schema
+  migrations/       Prisma migrations
+public/             static assets
+docs/plans/         planning notes
+```
+
+## Database Model
+
+Main Prisma models:
+
+- `Member`
+- `Project`
+- `Devlog`
+- `Image`
+- `VerificationRequest`
+
+The schema also defines `Role`, `SubmissionStatus`, and `VerificationStatus` enums.
 
 ## Deployment
 
-Build and start with PM2:
+Production is configured to run through PM2 using [`ecosystem.config.js`](/srv/md0/hackclub/phhs-site/ecosystem.config.js).
 
 ```bash
 npm run build
@@ -74,30 +226,23 @@ pm2 start ecosystem.config.js
 Or restart an existing process:
 
 ```bash
-npm run build && pm2 restart phhs-site
+pm2 restart phhs-site
 ```
 
-## Database
+## Validation
+
+There is no dedicated automated test suite yet. Before shipping changes, run:
 
 ```bash
-npx prisma migrate dev     # run migrations in development
-npx prisma migrate deploy  # run migrations in production
-npx prisma studio          # open database GUI
+npm run lint
+npm run build
 ```
 
-## Project Structure
+Manual verification is especially important for:
 
-```
-src/
-  app/
-    (public pages)  about, events, gallery, donate, contact
-    portal/         member dashboard, project/devlog editor
-    admin/          submission queue, member management
-    api/            REST endpoints
-  components/       shared UI components
-  lib/              prisma, auth, minio, images utilities
-prisma/
-  schema.prisma     database schema
-public/
-  logos/            club logo assets
-```
+- OAuth login flows
+- Portal project submission
+- Devlog submission
+- Image upload behavior
+- Contact form email delivery
+- Admin approval flows

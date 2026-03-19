@@ -7,7 +7,9 @@ import type { ReactNode } from 'react'
 const links = [
   { href: '/about', label: 'About' },
   { href: '/events', label: 'Events' },
+  { href: '/members', label: 'Members' },
   { href: '/gallery', label: 'Gallery' },
+  { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/contact', label: 'Contact' },
 ]
 
@@ -20,9 +22,7 @@ export default function Navbar({ authButton }: { authButton: ReactNode }) {
         position: 'sticky',
         top: 0,
         zIndex: 999,
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        background: 'rgba(14, 12, 20, 0.88)',
+        background: 'rgba(14, 12, 20, 0.96)',
         borderBottom: '1px solid rgba(200, 190, 255, 0.09)',
         boxShadow: '0 1px 0 rgba(200, 190, 255, 0.04)',
       }}
@@ -80,7 +80,13 @@ export default function Navbar({ authButton }: { authButton: ReactNode }) {
                 {link.label}
               </Link>
             ))}
-            <Link href="/donate" className="btn-primary" onClick={() => setOpen(false)}>
+            <Link
+              href="https://hcb.hackclub.com/donations/start/phhs-hack-club"
+              className="btn-primary"
+              onClick={() => setOpen(false)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Donate
             </Link>
             {authButton}
@@ -90,4 +96,3 @@ export default function Navbar({ authButton }: { authButton: ReactNode }) {
     </header>
   )
 }
-

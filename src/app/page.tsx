@@ -23,13 +23,21 @@ const semesterPlan = [
   { month: 'JAN', label: 'Demo Day', desc: 'Present what you built. Show it off. Ship it into the world.' },
 ]
 
+const meetingDetails = [
+  { k: 'Day', v: 'Every Thursday' },
+  { k: 'Time', v: '3:00 - 4:00 PM' },
+  { k: 'Location', v: 'Room 255 · Pascack Hills HS' },
+  { k: 'Open to', v: 'All PHHS students - any grade, any skill level' },
+]
+
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams?: Record<string, string | string[] | undefined>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
-  const pending = searchParams?.pending === 'true'
-  const error = typeof searchParams?.error === 'string' ? searchParams.error : ''
+  const params = await searchParams
+  const pending = params?.pending === 'true'
+  const error = typeof params?.error === 'string' ? params.error : ''
   const session = await getSession()
 
   return (
@@ -37,7 +45,7 @@ export default async function HomePage({
       <a href="https://hackclub.com/" style={{ position: 'absolute', top: 0, left: 10, zIndex: 1000 }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          style={{ border: 0, width: 256 }}
+          style={{ border: 0, width: 'clamp(90px, 16vw, 256px)' }}
           src="https://assets.hackclub.com/flag-orpheus-top.svg"
           alt="Hack Club"
         />
@@ -181,6 +189,42 @@ export default async function HomePage({
               We&apos;re mostly self-funded. Hardware grants from Hack Club HQ cover some projects, but we rely on donations for domains, 3D-printing filament, and day-to-day operating costs.
             </p>
             <Link href="/donate" className="btn-outline" style={{ fontSize: '0.9rem' }}>Donate →</Link>
+          </div>
+        </div>
+      </section>
+
+      <section style={{ paddingTop: 'var(--space-5)' }}>
+        <div className="card info-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)', borderColor: 'rgba(200, 190, 255, 0.1)' }}>
+          <div
+            style={{
+              background: 'radial-gradient(ellipse 80% 60% at 10% 50%, rgba(236, 55, 80, 0.05) 0%, transparent 60%)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '0.25rem',
+            }}
+          >
+            <p style={{ margin: '0 0 0.75rem', color: 'var(--muted)', fontSize: '0.7rem', letterSpacing: '0.12em', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{'// WHEN & WHERE'}</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+              {meetingDetails.map(({ k, v }) => (
+                <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.65rem' }}>
+                  <span style={{ color: 'var(--dim)', fontSize: '0.8rem', fontFamily: 'var(--font-mono)', minWidth: 80 }}>{k}</span>
+                  <span style={{ color: 'var(--text)', fontSize: '0.88rem', fontWeight: 600, textAlign: 'right' }}>{v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p style={{ margin: '0 0 0.75rem', color: 'var(--muted)', fontSize: '0.7rem', letterSpacing: '0.12em', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{'// FIRST MEETING?'}</p>
+            <p style={{ margin: '0 0 1rem', lineHeight: 1.8, color: 'var(--muted)', fontSize: '0.95rem' }}>
+              Just show up. You do not need prior experience, a finished idea, or a team. Bring a laptop and we&apos;ll help you get set up.
+            </p>
+            <p style={{ margin: '0 0 1.25rem', lineHeight: 1.8, color: 'var(--muted)', fontSize: '0.95rem' }}>
+              If you want to see the kinds of things members ship, browse the gallery or read more about how the club works.
+            </p>
+            <div style={{ display: 'flex', gap: '0.875rem', flexWrap: 'wrap' }}>
+              <Link href="/about" className="btn-outline" style={{ fontSize: '0.9rem' }}>Learn more →</Link>
+              <Link href="/gallery" className="btn-ghost" style={{ fontSize: '0.9rem' }}>See projects</Link>
+            </div>
           </div>
         </div>
       </section>
