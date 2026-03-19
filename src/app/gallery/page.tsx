@@ -142,7 +142,7 @@ export default async function GalleryPage() {
                         <h3 style={{ marginTop: 0, marginBottom: '0.25rem', fontSize: '1rem' }}>{project.title || 'Untitled project'}</h3>
                         <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>by {project.member.name}</p>
                       </div>
-                      <div style={{ fontSize: '0.88rem', color: 'var(--muted)' }}>
+                      <div style={{ fontSize: '0.8rem', lineHeight: 1.5, color: 'var(--muted)' }}>
                         <MarkdownPreview source={project.description.slice(0, 180)} fallback="No description provided." />
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '0.25rem' }}>
