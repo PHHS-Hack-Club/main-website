@@ -14,7 +14,7 @@ export default async function PortalLayout({ children }: { children: React.React
 
   const member = await prisma.member.findUnique({
     where: { id: session.memberId },
-    select: { profilePictureKey: true },
+    select: { profilePictureKey: true, username: true },
   })
 
   const profilePictureUrl = member?.profilePictureKey
@@ -31,6 +31,16 @@ export default async function PortalLayout({ children }: { children: React.React
             <h2 style={{ marginBottom: '0.35rem' }}>{session.name}</h2>
             <p style={{ margin: 0, color: 'var(--muted)' }}>{session.email}</p>
           </div>
+          {!member?.username && (
+            <Link href="/portal/setup" style={{ color: 'var(--orange)' }}>
+              Choose your public username
+            </Link>
+          )}
+          {member?.username && (
+            <Link href={`/members/${member.username}`}>
+              View public profile
+            </Link>
+          )}
           <Link href="/portal">Dashboard</Link>
           <Link href="/portal/projects/new">New project</Link>
           <Link href="/portal/devlogs/new">New devlog</Link>

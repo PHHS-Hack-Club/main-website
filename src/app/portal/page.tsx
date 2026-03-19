@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getSession, isAdmin } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getFileUrl } from '@/lib/minio'
+import ProfileEditor from '@/components/ProfileEditor'
 
 export default async function PortalPage() {
   const session = await getSession()
@@ -11,7 +12,17 @@ export default async function PortalPage() {
     redirect('/')
   }
 
-  const [projects, devlogs] = await Promise.all([
+  const [member, projects, devlogs] = await Promise.all([
+    prisma.member.findUnique({
+      where: { id: session.memberId },
+      select: {
+        username: true,
+        headline: true,
+        bio: true,
+        websiteUrl: true,
+        githubUrl: true,
+      },
+    }),
     prisma.project.findMany({
       where: { memberId: session.memberId },
       orderBy: { updatedAt: 'desc' },
@@ -34,6 +45,10 @@ export default async function PortalPage() {
       },
     }),
   ])
+
+  if (!member) {
+    redirect('/')
+  }
 
   return (
     <div className="stack">
@@ -63,6 +78,18 @@ export default async function PortalPage() {
             )}
           </div>
         </div>
+      </section>
+
+      <section className="stack">
+        <ProfileEditor
+          initialValues={{
+            username: member.username ?? '',
+            headline: member.headline ?? '',
+            bio: member.bio ?? '',
+            websiteUrl: member.websiteUrl ?? '',
+            githubUrl: member.githubUrl ?? '',
+          }}
+        />
       </section>
 
       <section className="stack">

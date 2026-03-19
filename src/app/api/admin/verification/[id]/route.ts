@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession, isAdmin } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { findAvailableAutoUsername } from '@/lib/member-username'
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSession()
@@ -25,12 +26,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     })
 
     if (!existingMember) {
+      const autoUsername = await findAvailableAutoUsername(verification.name)
+
       await prisma.member.create({
         data: {
           hackClubSub: verification.hackClubSub,
           email: verification.email,
           name: verification.name,
           role: 'MEMBER',
+          username: autoUsername,
         },
       })
     }

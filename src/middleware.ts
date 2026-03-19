@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 interface MiddlewareSessionPayload {
   role?: 'PRESIDENT' | 'VP' | 'MEMBER'
+  username?: string | null
 }
 
 function decodePayload(token: string): MiddlewareSessionPayload | null {
@@ -33,6 +34,17 @@ export async function middleware(request: NextRequest) {
 
     if (!payload) {
       throw new Error('Invalid session')
+    }
+
+    const isSetupRoute = request.nextUrl.pathname === '/portal/setup'
+    const requiresSetup = payload.username === null
+
+    if (requiresSetup && !isSetupRoute) {
+      return NextResponse.redirect(new URL('/portal/setup', request.url))
+    }
+
+    if (payload.username && isSetupRoute) {
+      return NextResponse.redirect(new URL('/portal', request.url))
     }
 
     if (request.nextUrl.pathname.startsWith('/admin')) {

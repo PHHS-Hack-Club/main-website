@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createSession, setSessionCookie } from '@/lib/auth'
+import { findAvailableAutoUsername } from '@/lib/member-username'
 
 function siteUrl(path: string) {
   const base = process.env.HACKCLUB_REDIRECT_URI
@@ -60,11 +61,18 @@ export async function GET(request: NextRequest) {
   })
 
   if (member) {
+    const nextName = name || member.name
+    const nextEmail = email || member.email
+    const autoUsername = member.username
+      ? member.username
+      : await findAvailableAutoUsername(nextName, member.id)
+
     member = await prisma.member.update({
       where: { id: member.id },
       data: {
-        name: name || member.name,
-        email: email || member.email,
+        name: nextName,
+        email: nextEmail,
+        ...(member.username ? {} : { username: autoUsername }),
       },
     })
 
@@ -73,20 +81,24 @@ export async function GET(request: NextRequest) {
       email: member.email,
       name: member.name,
       role: member.role,
+      username: member.username,
     })
 
-    const response = NextResponse.redirect(siteUrl('/portal'))
+    const response = NextResponse.redirect(siteUrl(member.username ? '/portal' : '/portal/setup'))
     setSessionCookie(response, token)
     return response
   }
 
   if (email && email === process.env.ADMIN_EMAIL) {
+    const autoUsername = await findAvailableAutoUsername(name || 'Admin')
+
     const created = await prisma.member.create({
       data: {
         hackClubSub: sub,
         email,
         name: name || 'Admin',
         role: 'PRESIDENT',
+        username: autoUsername,
       },
     })
 
@@ -95,9 +107,10 @@ export async function GET(request: NextRequest) {
       email: created.email,
       name: created.name,
       role: created.role,
+      username: created.username,
     })
 
-    const response = NextResponse.redirect(siteUrl('/portal'))
+    const response = NextResponse.redirect(siteUrl(created.username ? '/portal' : '/portal/setup'))
     setSessionCookie(response, token)
     return response
   }

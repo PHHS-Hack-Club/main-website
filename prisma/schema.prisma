@@ -29,11 +29,16 @@ enum VerificationStatus {
 model Member {
   id          String   @id @default(cuid())
   hackClubSub String   @unique @map("hack_club_sub")
+  username    String?  @unique
   email       String   @unique
   name        String
+  headline    String?
+  bio         String?
   role            Role     @default(MEMBER)
   profilePictureKey String?  @map("profile_picture_key")
   hackatimeToken  String?  @map("hackatime_token")
+  websiteUrl      String?  @map("website_url")
+  githubUrl       String?  @map("github_url")
   createdAt       DateTime @default(now()) @map("created_at")
 
   projects Project[]

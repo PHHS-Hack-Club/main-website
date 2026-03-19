@@ -9,6 +9,7 @@ export interface SessionPayload {
   email: string
   name: string
   role: 'PRESIDENT' | 'VP' | 'MEMBER'
+  username?: string | null
 }
 
 export async function createSession(payload: SessionPayload) {
