@@ -139,6 +139,7 @@ export async function sendVerificationNotification({
 }) {
   if (!process.env.SMTP_HOST || !process.env.ADMIN_EMAIL) return
 
+  console.log(`[email] sending verification notification for ${name} (${email}) to ${process.env.ADMIN_EMAIL}`)
   await createTransporter().sendMail({
     from: senderAddress(),
     to: process.env.ADMIN_EMAIL,
@@ -170,6 +171,7 @@ export async function sendSubmissionNotification({
 
   const label = type === 'project' ? 'Project' : 'Devlog'
 
+  console.log(`[email] sending ${type} submission notification "${title}" by ${memberName} to ${process.env.ADMIN_EMAIL}`)
   await createTransporter().sendMail({
     from: senderAddress(),
     to: process.env.ADMIN_EMAIL,

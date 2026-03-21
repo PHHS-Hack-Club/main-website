@@ -23,6 +23,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link href="/admin/members">Members</Link>
           <Link href="/admin/attendance">Attendance</Link>
           <Link href="/admin/submissions">Submissions</Link>
+          <Link href="/admin/modals">Modals</Link>
           <Link href="/portal" style={{ color: 'var(--muted)' }}>
             Back to portal
           </Link>

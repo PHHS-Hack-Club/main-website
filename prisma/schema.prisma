@@ -110,6 +110,18 @@ model VerificationRequest {
   @@map("verification_requests")
 }
 
+model SiteModal {
+  id        String   @id @default(cuid())
+  title     String
+  heading   String   @default("")
+  body      String   @default("")
+  enabled   Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("site_modals")
+}
+
 model AttendanceRecord {
   id          String  @id @default(cuid())
   memberId    String  @map("member_id")

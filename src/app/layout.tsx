@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import CrtOverlay from '@/components/CrtOverlay'
 import NavAuthButton from '@/components/NavAuthButton'
+import SiteModal from '@/components/SiteModal'
 
 export const metadata: Metadata = {
   title: 'PHHS Hack Club',
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <CrtOverlay />
         <Navbar authButton={<NavAuthButton />} />
+        <SiteModal />
         <main>{children}</main>
         <Footer />
       </body>
