@@ -36,17 +36,6 @@ export async function middleware(request: NextRequest) {
       throw new Error('Invalid session')
     }
 
-    const isSetupRoute = request.nextUrl.pathname === '/portal/setup'
-    const requiresSetup = payload.username === null
-
-    if (requiresSetup && !isSetupRoute) {
-      return NextResponse.redirect(new URL('/portal/setup', request.url))
-    }
-
-    if (payload.username && isSetupRoute) {
-      return NextResponse.redirect(new URL('/portal', request.url))
-    }
-
     if (request.nextUrl.pathname.startsWith('/admin')) {
       if (payload.role !== 'PRESIDENT' && payload.role !== 'VP') {
         return NextResponse.redirect(new URL('/portal', request.url))

@@ -83,7 +83,6 @@ export default async function PortalPage() {
       <section className="stack">
         <ProfileEditor
           initialValues={{
-            username: member.username ?? '',
             headline: member.headline ?? '',
             bio: member.bio ?? '',
             websiteUrl: member.websiteUrl ?? '',

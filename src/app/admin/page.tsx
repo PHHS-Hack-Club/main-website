@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 
 export default async function AdminPage() {
-  const [memberCount, pendingVerifications, pendingProjects, pendingDevlogs] = await Promise.all([
+  const [memberCount, pendingVerifications, pendingProjects, pendingDevlogs, totalMeetings] = await Promise.all([
     prisma.member.count(),
     prisma.verificationRequest.count({
       where: { status: 'PENDING' },
@@ -13,6 +13,7 @@ export default async function AdminPage() {
     prisma.devlog.count({
       where: { status: 'PENDING' },
     }),
+    prisma.attendanceRecord.groupBy({ by: ['date'] }).then((r) => r.length),
   ])
 
   return (
@@ -38,6 +39,10 @@ export default async function AdminPage() {
         <Link href="/admin/members" className="card card-interactive">
           <p style={{ color: 'var(--muted)', marginTop: 0 }}>Members</p>
           <p style={{ fontSize: '2.5rem', fontWeight: 800, margin: 0 }}>{memberCount}</p>
+        </Link>
+        <Link href="/admin/attendance" className="card card-interactive">
+          <p style={{ color: 'var(--muted)', marginTop: 0 }}>Meetings Tracked</p>
+          <p style={{ fontSize: '2.5rem', fontWeight: 800, margin: 0 }}>{totalMeetings}</p>
         </Link>
       </div>
     </div>

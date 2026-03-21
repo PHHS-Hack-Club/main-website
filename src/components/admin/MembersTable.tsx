@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 interface MemberRow {
   id: string
+  username: string
   name: string
   email: string
   role: 'PRESIDENT' | 'VP' | 'MEMBER'
@@ -49,6 +50,7 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          username: row.username,
           name: row.name,
           email: row.email,
           role: row.role,
@@ -102,6 +104,7 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
         <table className="table">
           <thead>
             <tr>
+              <th>Username</th>
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
@@ -112,6 +115,9 @@ export default function MembersTable({ members }: { members: MemberRow[] }) {
           <tbody>
             {rows.map((row) => (
               <tr key={row.id}>
+                <td>
+                  <input value={row.username} onChange={(event) => updateRow(row.id, 'username', event.target.value)} className="field" placeholder="alexradu" />
+                </td>
                 <td>
                   <input value={row.name} onChange={(event) => updateRow(row.id, 'name', event.target.value)} className="field" />
                 </td>

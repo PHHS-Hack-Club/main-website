@@ -21,6 +21,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link href="/admin">Overview</Link>
           <Link href="/admin/verification">Verification</Link>
           <Link href="/admin/members">Members</Link>
+          <Link href="/admin/attendance">Attendance</Link>
           <Link href="/admin/submissions">Submissions</Link>
           <Link href="/portal" style={{ color: 'var(--muted)' }}>
             Back to portal

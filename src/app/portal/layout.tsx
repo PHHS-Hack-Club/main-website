@@ -32,9 +32,9 @@ export default async function PortalLayout({ children }: { children: React.React
             <p style={{ margin: 0, color: 'var(--muted)' }}>{session.email}</p>
           </div>
           {!member?.username && (
-            <Link href="/portal/setup" style={{ color: 'var(--orange)' }}>
-              Choose your public username
-            </Link>
+            <p style={{ margin: 0, color: 'var(--orange)', fontSize: '0.86rem' }}>
+              Ask an admin to assign your public username.
+            </p>
           )}
           {member?.username && (
             <Link href={`/members/${member.username}`}>

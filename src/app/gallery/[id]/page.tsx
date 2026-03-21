@@ -194,7 +194,7 @@ export default async function GalleryProjectPage({
                   fontWeight: 700,
                 }}
               >
-                ⏱ {codingHours} coded
+                ⏱ {codingHours} logged
               </span>
             )}
           </div>

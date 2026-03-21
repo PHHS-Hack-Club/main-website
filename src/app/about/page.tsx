@@ -44,8 +44,8 @@ export default function AboutPage() {
           <p style={{ color: 'var(--muted)', maxWidth: 680, lineHeight: 1.8, margin: 0, fontSize: '1rem' }}>
             PHHS Hack Club is the Pascack Hills chapter of the global{' '}
             <a href="https://hackclub.com" target="_blank" rel="noreferrer" style={{ color: 'var(--orange)' }}>Hack Club</a>{' '}
-            network. We&apos;re a student-run programming club for people who want to make real things
-            websites, games, hardware experiments, bots, 3D-printed objects, and whatever else.
+            network. We&apos;re a student-run club for people who want to make real things
+            websites, games, hardware experiments, bots, 3D-printed objects, art, and whatever else.
             No experience required. No grades. Just building.
           </p>
         </div>
@@ -128,8 +128,8 @@ export default function AboutPage() {
           <div className="card">
             <p style={{ margin: '0 0 0.75rem', color: 'var(--muted)', fontSize: '0.7rem', letterSpacing: '0.12em', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{'// HACK CLUB NETWORK'}</p>
             <p style={{ margin: '0 0 1rem', color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.75 }}>
-              We&apos;re one of 4,000+ high school chapters in the global Hack Club network a 501(c)(3) non-profit run from Burlington, Vermont.
-              Members get access to free credits, hardware grants, and events like Hackathons put on by HQ.
+              We&apos;re one of 4,000+ high school chapters in the global Hack Club network, a 501(c)(3) non-profit run from Burlington, Vermont.
+              Members get access to grants, hardware, real-world programs, and a huge community of students who love making things.
             </p>
             <p style={{ margin: '0 0 1.25rem', color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.75 }}>
               Our finances are managed transparently through{' '}
@@ -147,7 +147,7 @@ export default function AboutPage() {
           <p style={{ margin: '0 0 0.5rem', color: 'var(--muted)', fontSize: '0.7rem', letterSpacing: '0.12em', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{'// READY?'}</p>
           <h2 style={{ margin: '0 0 0.75rem', fontSize: 'clamp(1.5rem, 3vw, 2.25rem)', letterSpacing: '-0.02em' }}>Come build something.</h2>
           <p style={{ color: 'var(--muted)', maxWidth: 480, marginInline: 'auto', marginBottom: '1.5rem', fontSize: '0.95rem', lineHeight: 1.7 }}>
-            Show up Thursday. We&apos;ll find you a project, introduce you to the stack, and get you shipping by the end of the session.
+            Show up Thursday. We&apos;ll help you find a project, get unblocked, and leave with real progress on something you actually care about.
           </p>
           <div style={{ display: 'flex', gap: '0.875rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/gallery" className="btn-outline">See what we&apos;ve built</Link>

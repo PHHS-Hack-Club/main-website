@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3007",
-    "build": "next build",
+    "build": "next build && pm2 restart phhs-site",
     "start": "next start -p 3007",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prisma:generate": "prisma generate"
@@ -12,6 +12,7 @@
   "dependencies": {
     "@prisma/client": "5.22.0",
     "@uiw/react-md-editor": "4.0.11",
+    "framer-motion": "^12.38.0",
     "jose": "6.2.1",
     "minio": "8.0.7",
     "next": "^16.1.6",

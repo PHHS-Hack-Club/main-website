@@ -112,7 +112,7 @@ export default async function HomePage({
               Hack Club
             </h1>
             <p style={{ color: 'var(--muted)', fontSize: '1.05rem', maxWidth: 560, marginTop: '1rem' }}>
-              Pascack Hills High School&apos;s chapter of the global Hack Club network. We meet weekly to build websites, games, and 3D-printed things no experience required.
+              Pascack Hills High School&apos;s chapter of the global Hack Club network. We meet weekly to make websites, games, hardware projects, art, and whatever else members want to bring to life.
             </p>
           </div>
           <div style={{ display: 'flex', gap: '0.875rem', flexWrap: 'wrap' }}>
@@ -180,7 +180,7 @@ export default async function HomePage({
           <div>
             <p style={{ margin: '0 0 0.75rem', color: 'var(--muted)', fontSize: '0.7rem', letterSpacing: '0.12em', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{'// ABOUT HACK CLUB'}</p>
             <p style={{ margin: 0, lineHeight: 1.8, color: 'var(--muted)', fontSize: '0.95rem' }}>
-              Hack Club is a global non-profit network of 4,000+ high school coding clubs. We&apos;re not about cybersecurity hacking in the maker world, a &ldquo;hacker&rdquo; is someone who builds things with technology. Think of it as modern-day scouts, but for coders and makers.
+              Hack Club is a global non-profit network of 4,000+ high school clubs for people who make things with technology. Around here, &ldquo;hack&rdquo; means building, experimenting, sharing, and learning in public.
             </p>
           </div>
           <div>
@@ -219,7 +219,7 @@ export default async function HomePage({
               Just show up. You do not need prior experience, a finished idea, or a team. Bring a laptop and we&apos;ll help you get set up.
             </p>
             <p style={{ margin: '0 0 1.25rem', lineHeight: 1.8, color: 'var(--muted)', fontSize: '0.95rem' }}>
-              If you want to see the kinds of things members ship, browse the gallery or read more about how the club works.
+              If you want to see the kinds of things members make, browse the gallery or read more about how the club works.
             </p>
             <div style={{ display: 'flex', gap: '0.875rem', flexWrap: 'wrap' }}>
               <Link href="/about" className="btn-outline" style={{ fontSize: '0.9rem' }}>Learn more →</Link>

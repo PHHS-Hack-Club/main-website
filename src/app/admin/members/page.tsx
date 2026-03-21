@@ -14,11 +14,12 @@ export default async function MembersPage() {
       </Link>
       <div>
         <h1 style={{ marginBottom: '0.5rem' }}>Members</h1>
-        <p style={{ color: 'var(--muted)', margin: 0 }}>Edit names, email addresses, and roles for active club members.</p>
+        <p style={{ color: 'var(--muted)', margin: 0 }}>Edit usernames, names, email addresses, and roles for active club members.</p>
       </div>
       <MembersTable
         members={members.map((member) => ({
           id: member.id,
+          username: member.username ?? '',
           name: member.name,
           email: member.email,
           role: member.role,

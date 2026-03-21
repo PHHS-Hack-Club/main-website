@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createSession, getSession, setSessionCookie } from '@/lib/auth'
+import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import {
-  isUsernameTaken,
-  normalizeUsername,
-  validateUsername,
-} from '@/lib/member-username'
 import {
   normalizeBio,
   normalizeExternalUrl,
@@ -20,7 +15,6 @@ export async function PUT(request: NextRequest) {
   }
 
   const body = await request.json()
-  const username = normalizeUsername(body.username)
   const headline = normalizeHeadline(body.headline)
   const bio = normalizeBio(body.bio)
   const websiteUrl = body.websiteUrl?.trim()
@@ -30,11 +24,6 @@ export async function PUT(request: NextRequest) {
     ? normalizeExternalUrl(body.githubUrl)
     : null
 
-  const usernameError = validateUsername(username)
-  if (usernameError) {
-    return NextResponse.json({ error: usernameError }, { status: 400 })
-  }
-
   if (body.websiteUrl?.trim() && !websiteUrl) {
     return NextResponse.json({ error: 'Website URL must be a valid http or https URL.' }, { status: 400 })
   }
@@ -43,14 +32,9 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'GitHub URL must be a valid http or https URL.' }, { status: 400 })
   }
 
-  if (await isUsernameTaken(username, session.memberId)) {
-    return NextResponse.json({ error: 'That username is already taken.' }, { status: 409 })
-  }
-
   const member = await prisma.member.update({
     where: { id: session.memberId },
     data: {
-      username,
       headline,
       bio,
       websiteUrl,
@@ -69,15 +53,5 @@ export async function PUT(request: NextRequest) {
     },
   })
 
-  const token = await createSession({
-    memberId: member.id,
-    email: member.email,
-    name: member.name,
-    role: member.role,
-    username: member.username,
-  })
-
-  const response = NextResponse.json(member)
-  setSessionCookie(response, token)
-  return response
+  return NextResponse.json(member)
 }

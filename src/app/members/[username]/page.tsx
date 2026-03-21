@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import MarkdownPreview from '@/components/MarkdownPreview'
+import ProfileEditor from '@/components/ProfileEditor'
+import { getSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getFileUrl } from '@/lib/minio'
 import {
@@ -84,6 +86,7 @@ export default async function MemberPage({
 }: {
   params: Promise<{ username: string }>
 }) {
+  const session = await getSession()
   const { username } = await params
 
   const member = await prisma.member.findUnique({
@@ -144,6 +147,7 @@ export default async function MemberPage({
 
   if (!member) notFound()
 
+  const isOwner = session?.memberId === member.id
   const totalSeconds = member.hackatimeToken
     ? await fetchTotalSeconds(member.hackatimeToken)
     : 0
@@ -175,75 +179,75 @@ export default async function MemberPage({
             background:
               'radial-gradient(ellipse 80% 60% at 10% 50%, rgba(236, 55, 80, 0.06) 0%, var(--surface) 60%)',
           }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: '1rem',
-              alignItems: 'flex-start',
-              flexWrap: 'wrap',
-            }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              {member.profilePictureKey ? (
-                <img
-                  src={getFileUrl(member.profilePictureKey)}
-                  alt={`${member.name}'s profile picture`}
-                  style={{
-                    width: 72,
-                    height: 72,
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    flexShrink: 0,
-                    border: '1px solid var(--border)',
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: 72,
-                    height: 72,
-                    borderRadius: '50%',
-                    background: 'var(--raised)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    fontSize: '1rem',
-                    fontWeight: 800,
-                    color: 'var(--dim)',
-                    fontFamily: 'var(--font-mono)',
-                    border: '1px solid var(--border)',
-                  }}
-                >
-                  {getMemberInitials(member.name)}
-                </div>
-              )}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                gap: '1rem',
+                alignItems: 'flex-start',
+                flexWrap: 'wrap',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                {member.profilePictureKey ? (
+                  <img
+                    src={getFileUrl(member.profilePictureKey)}
+                    alt={`${member.name}'s profile picture`}
+                    style={{
+                      width: 72,
+                      height: 72,
+                      borderRadius: '50%',
+                      objectFit: 'cover',
+                      flexShrink: 0,
+                      border: '1px solid var(--border)',
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: 72,
+                      height: 72,
+                      borderRadius: '50%',
+                      background: 'var(--raised)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      fontSize: '1rem',
+                      fontWeight: 800,
+                      color: 'var(--dim)',
+                      fontFamily: 'var(--font-mono)',
+                      border: '1px solid var(--border)',
+                    }}
+                  >
+                    {getMemberInitials(member.name)}
+                  </div>
+                )}
 
-              <div>
-                <p
-                  style={{
-                    margin: '0 0 0.35rem',
-                    color: 'var(--muted)',
-                    fontSize: '0.7rem',
-                    letterSpacing: '0.12em',
-                    fontWeight: 700,
-                    fontFamily: 'var(--font-mono)',
-                  }}
-                >
-                  {'// MEMBER'}
-                </p>
-                <h1
-                  className='glow-red'
-                  style={{
-                    marginBottom: '0.35rem',
-                    letterSpacing: '-0.02em',
-                    fontSize: 'clamp(2.25rem, 4vw, 3.5rem)',
-                  }}
-                >
-                  {member.name}
-                </h1>
+                <div>
+                  <p
+                    style={{
+                      margin: '0 0 0.35rem',
+                      color: 'var(--muted)',
+                      fontSize: '0.7rem',
+                      letterSpacing: '0.12em',
+                      fontWeight: 700,
+                      fontFamily: 'var(--font-mono)',
+                    }}
+                  >
+                    {'// MEMBER'}
+                  </p>
+                  <h1
+                    className='glow-red'
+                    style={{
+                      marginBottom: '0.35rem',
+                      letterSpacing: '-0.02em',
+                      fontSize: 'clamp(2.25rem, 4vw, 3.5rem)',
+                    }}
+                  >
+                    {member.name}
+                  </h1>
                 <p
                   style={{
                     margin: 0,
@@ -251,41 +255,58 @@ export default async function MemberPage({
                     fontSize: '0.9rem',
                   }}
                 >
-                  {`Joined ${joinedDateFormatter.format(member.createdAt)} · /members/${member.username}`}
+                    {`Joined ${joinedDateFormatter.format(member.createdAt)} · ${member.username}`}
                 </p>
-                {member.headline && (
-                  <p
-                    style={{
-                      margin: '0.6rem 0 0',
-                      color: 'var(--text)',
-                      fontSize: '1rem',
-                      maxWidth: 640,
+                  {member.headline && (
+                    <p
+                      style={{
+                        margin: '0.6rem 0 0',
+                        color: 'var(--text)',
+                        fontSize: '1rem',
+                        maxWidth: 640,
+                      }}
+                    >
+                      {member.headline}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                {isOwner && (
+                  <ProfileEditor
+                    mode='modal'
+                    name={member.name}
+                    currentImageUrl={member.profilePictureKey ? getFileUrl(member.profilePictureKey) : null}
+                    triggerLabel='Edit'
+                    triggerClassName='btn-ghost'
+                    initialValues={{
+                      headline: member.headline ?? '',
+                      bio: member.bio ?? '',
+                      websiteUrl: member.websiteUrl ?? '',
+                      githubUrl: member.githubUrl ?? '',
                     }}
-                  >
-                    {member.headline}
-                  </p>
+                  />
                 )}
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    padding: '0.3rem 0.75rem',
+                    borderRadius: 'var(--radius-pill)',
+                    fontSize: '0.75rem',
+                    fontWeight: 800,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    border: `1px solid ${rc.border}`,
+                    color: rc.color,
+                    background: rc.bg,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {roleLabel[member.role]}
+                </span>
               </div>
             </div>
-
-            <span
-              style={{
-                display: 'inline-flex',
-                padding: '0.3rem 0.75rem',
-                borderRadius: 'var(--radius-pill)',
-                fontSize: '0.75rem',
-                fontWeight: 800,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                border: `1px solid ${rc.border}`,
-                color: rc.color,
-                background: rc.bg,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {roleLabel[member.role]}
-            </span>
-          </div>
 
           <div
             style={{
@@ -362,7 +383,7 @@ export default async function MemberPage({
                     fontFamily: 'var(--font-mono)',
                   }}
                 >
-                  total coded
+                  logged in Hackatime
                 </p>
               </div>
             )}

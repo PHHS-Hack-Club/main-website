@@ -1,7 +1,6 @@
-import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
 import { getFileUrl } from '@/lib/minio'
-import MarkdownPreview from '@/components/MarkdownPreview'
+import GallerySearch from '@/components/GallerySearch'
 
 function formatSeconds(seconds: number): string {
   const h = Math.floor(seconds / 3600)
@@ -13,7 +12,6 @@ function formatSeconds(seconds: number): string {
 async function buildHoursMap(
   projects: { id: string; hackatimeProject: string | null; member: { id: string; hackatimeToken: string | null } }[]
 ): Promise<Map<string, string>> {
-  // Group by member so we make one API call per member, not per project
   const memberTokens = new Map<string, string>()
   for (const p of projects) {
     if (p.hackatimeProject && p.member.hackatimeToken && !memberTokens.has(p.member.id)) {
@@ -21,7 +19,6 @@ async function buildHoursMap(
     }
   }
 
-  // Fetch each member's project list once
   const memberProjectSeconds = new Map<string, Map<string, number>>()
   await Promise.all(
     [...memberTokens.entries()].map(async ([memberId, token]) => {
@@ -41,7 +38,6 @@ async function buildHoursMap(
     })
   )
 
-  // Build projectId → formatted hours
   const hours = new Map<string, string>()
   for (const p of projects) {
     if (!p.hackatimeProject) continue
@@ -76,6 +72,28 @@ export default async function GalleryPage() {
 
   const hoursMap = await buildHoursMap(projects)
 
+  const serializedProjects = projects.map((p) => ({
+    id: p.id,
+    title: p.title,
+    description: p.description,
+    tags: p.tags,
+    memberName: p.member.name,
+    imageUrl: p.images[0] ? getFileUrl(p.images[0].minioKey) : null,
+    imageAlt: p.images[0]?.originalFilename ?? null,
+    hours: hoursMap.get(p.id) ?? null,
+  }))
+
+  const serializedDevlogs = devlogs.map((d) => ({
+    id: d.id,
+    title: d.title,
+    body: d.body,
+    memberName: d.member.name,
+    projectTitle: d.project?.title ?? null,
+    projectId: d.project?.id ?? null,
+    imageUrl: d.images[0] ? getFileUrl(d.images[0].minioKey) : null,
+    imageAlt: d.images[0]?.originalFilename ?? null,
+  }))
+
   return (
     <div className="container" style={{ paddingTop: 'var(--space-5)', paddingBottom: 'var(--space-5)' }}>
       <div className="stack">
@@ -85,135 +103,7 @@ export default async function GalleryPage() {
           <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.95rem' }}>Approved projects and devlogs from PHHS Hack Club members.</p>
         </div>
 
-        <section className="stack">
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'center' }}>
-            <h2 style={{ margin: 0, fontSize: '1.15rem', letterSpacing: '0.01em' }}>Projects</h2>
-            <span style={{ color: 'var(--dim)', fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>{projects.length} approved</span>
-          </div>
-          {projects.length === 0 ? (
-            <div className="card" style={{ textAlign: 'center', padding: 'var(--space-5)' }}>
-              <p style={{ color: 'var(--muted)', margin: 0 }}>No approved projects yet.</p>
-            </div>
-          ) : (
-            <div className="grid-cards">
-              {projects.map((project) => {
-                const image = project.images[0]
-                const hours = hoursMap.get(project.id)
-                return (
-                  <Link key={project.id} href={`/gallery/${project.id}`} className="card card-interactive stack" style={{ padding: 0, overflow: 'hidden', textDecoration: 'none' }}>
-                    {image ? (
-                      <div style={{ position: 'relative', overflow: 'hidden' }}>
-                        <img
-                          src={getFileUrl(image.minioKey)}
-                          alt={image.originalFilename}
-                          style={{ width: '100%', height: 180, objectFit: 'cover', display: 'block' }}
-                        />
-                        <div style={{
-                          position: 'absolute',
-                          inset: 0,
-                          background: 'repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px)',
-                          pointerEvents: 'none',
-                        }} />
-                        {hours && (
-                          <span style={{
-                            position: 'absolute',
-                            bottom: '0.5rem',
-                            right: '0.5rem',
-                            padding: '0.15rem 0.45rem',
-                            borderRadius: 'var(--radius-pill)',
-                            background: 'rgba(0,0,0,0.65)',
-                            border: '1px solid rgba(255,140,55,0.35)',
-                            color: 'var(--orange)',
-                            fontSize: '0.7rem',
-                            fontFamily: 'var(--font-mono)',
-                            fontWeight: 700,
-                          }}>
-                            ⏱ {hours}
-                          </span>
-                        )}
-                      </div>
-                    ) : (
-                      <div style={{ height: 100, background: 'var(--raised)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ color: 'var(--dim)', fontFamily: 'var(--font-mono)', fontSize: '0.75rem' }}>NO_SCREENSHOT</span>
-                      </div>
-                    )}
-                    <div style={{ padding: '0.65rem var(--space-3) var(--space-3)', display: 'flex', flexDirection: 'column', gap: '0.35rem', flex: 1 }}>
-                      <div>
-                        <h3 style={{ marginTop: 0, marginBottom: '0.25rem', fontSize: '1.15rem' }}>{project.title || 'Untitled project'}</h3>
-                        <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>by {project.member.name}</p>
-                      </div>
-                      {/* <div style={{ fontSize: '0.8rem', lineHeight: 1.5, color: 'var(--muted)' }}>
-                        <MarkdownPreview source={project.description.slice(0, 180)} fallback="No description provided." />
-                      </div> */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '0.25rem' }}>
-                        <p style={{ color: 'var(--orange)', margin: 0, fontSize: '0.8rem', fontWeight: 700 }}>
-                          View project →
-                        </p>
-                        {hours && !image && (
-                          <span style={{ color: 'var(--orange)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)' }}>⏱ {hours}</span>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          )}
-        </section>
-
-        <section className="stack">
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'center' }}>
-            <h2 style={{ margin: 0, fontSize: '1.15rem', letterSpacing: '0.01em' }}>Devlogs</h2>
-            <span style={{ color: 'var(--dim)', fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>{devlogs.length} approved</span>
-          </div>
-          {devlogs.length === 0 ? (
-            <div className="card" style={{ textAlign: 'center', padding: 'var(--space-5)' }}>
-              <p style={{ color: 'var(--muted)', margin: 0 }}>No approved devlogs yet.</p>
-            </div>
-          ) : (
-            <div className="stack">
-              {devlogs.map((devlog) => {
-                const image = devlog.images[0]
-                return (
-                  <article key={devlog.id} className="card stack" style={{ padding: 0, overflow: 'hidden' }}>
-                    {image && (
-                      <div style={{ position: 'relative' }}>
-                        <img
-                          src={getFileUrl(image.minioKey)}
-                          alt={image.originalFilename}
-                          style={{ width: '100%', maxHeight: 260, objectFit: 'cover', display: 'block' }}
-                        />
-                        <div style={{
-                          position: 'absolute',
-                          inset: 0,
-                          background: 'repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px)',
-                          pointerEvents: 'none',
-                        }} />
-                      </div>
-                    )}
-                    <div style={{ padding: 'var(--space-3)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <div>
-                        <h3 style={{ marginTop: 0, marginBottom: '0.25rem', fontSize: '1rem' }}>{devlog.title || 'Untitled devlog'}</h3>
-                        <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>
-                          by {devlog.member.name}
-                          {devlog.project ? ` · ${devlog.project.title}` : ''}
-                        </p>
-                      </div>
-                      <div style={{ fontSize: '0.9rem', color: 'var(--muted)' }}>
-                        <MarkdownPreview source={devlog.body.slice(0, 220)} fallback="No content provided." />
-                      </div>
-                      {devlog.project && (
-                        <Link href={`/gallery/${devlog.project.id}`} style={{ color: 'var(--orange)', fontSize: '0.8rem', fontWeight: 700, marginTop: '0.25rem' }}>
-                          View project →
-                        </Link>
-                      )}
-                    </div>
-                  </article>
-                )
-              })}
-            </div>
-          )}
-        </section>
+        <GallerySearch projects={serializedProjects} devlogs={serializedDevlogs} />
       </div>
     </div>
   )

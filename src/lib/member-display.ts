@@ -14,7 +14,7 @@ export async function fetchTotalSeconds(token: string): Promise<number> {
       'https://hackatime.hackclub.com/api/v1/authenticated/projects?include_archived=true',
       {
         headers: { Authorization: `Bearer ${token}` },
-        next: { revalidate: 3600 },
+        cache: 'no-store',
       }
     )
 

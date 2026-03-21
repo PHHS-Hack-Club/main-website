@@ -38,6 +38,27 @@ async function fetchMemberSeconds(
   }
 }
 
+async function fetchMemberAllTimeSeconds(token: string): Promise<number> {
+  try {
+    const res = await fetch(
+      'https://hackatime.hackclub.com/api/v1/authenticated/projects?include_archived=true',
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        next: { revalidate: 1800 },
+      }
+    )
+    if (!res.ok) return 0
+
+    const data = await res.json() as {
+      projects?: { total_seconds: number }[]
+    }
+
+    return (data.projects ?? []).reduce((sum, project) => sum + project.total_seconds, 0)
+  } catch {
+    return 0
+  }
+}
+
 export default async function LeaderboardPage({
   searchParams,
 }: {
@@ -46,6 +67,7 @@ export default async function LeaderboardPage({
   const now = new Date()
   const params = await searchParams
   const raw = typeof params?.month === 'string' ? params.month : ''
+  const isAllTime = raw === 'all-time'
   const match = raw.match(/^(\d{4})-(\d{2})$/)
   const year = match ? parseInt(match[1]) : now.getFullYear()
   const month = match ? parseInt(match[2]) : now.getMonth() + 1
@@ -74,7 +96,9 @@ export default async function LeaderboardPage({
   const rows = await Promise.all(
     members.map(async (m) => ({
       name: m.name,
-      seconds: await fetchMemberSeconds(m.hackatimeToken!, start, end),
+      seconds: isAllTime
+        ? await fetchMemberAllTimeSeconds(m.hackatimeToken!)
+        : await fetchMemberSeconds(m.hackatimeToken!, start, end),
     })),
   )
 
@@ -96,10 +120,15 @@ export default async function LeaderboardPage({
             {'// LEADERBOARD'}
           </p>
           <h1 className="glow-red" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>
-            Hours coded.
+            Hackatime Leaderboard.
           </h1>
           <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.95rem' }}>
-            Ranked by Hackatime hours for {monthLabel(year, month)}.
+            {isAllTime
+              ? 'All-time time logged in Hackatime by club members.'
+              : `Time logged in Hackatime for ${monthLabel(year, month)}.`}
+          </p>
+          <p style={{ color: 'var(--dim)', margin: '0.5rem 0 0', fontSize: '0.82rem', maxWidth: 720 }}>
+            This only includes time logged after each member connected Hackatime. Earlier work and offline project time will not appear here.
           </p>
         </div>
 
@@ -113,9 +142,17 @@ export default async function LeaderboardPage({
             ← {monthLabel(prevYear, prevMonth).split(' ')[0]}
           </Link>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: 'var(--muted)', flex: 1, textAlign: 'center' }}>
-            {monthLabel(year, month)}
+            {isAllTime ? 'All-time' : monthLabel(year, month)}
           </span>
-          {!isCurrent && !isFuture ? (
+          {isAllTime ? (
+            <Link
+              href={`/leaderboard?month=${`${year}-${pad(month)}`}`}
+              className="btn-ghost"
+              style={{ fontSize: '0.85rem', minHeight: 36, padding: '0.4rem 1rem' }}
+            >
+              This month
+            </Link>
+          ) : !isCurrent && !isFuture ? (
             <Link
               href={`/leaderboard?month=${nextParam}`}
               className="btn-ghost"
@@ -124,9 +161,13 @@ export default async function LeaderboardPage({
               {monthLabel(nextYear, nextMonth).split(' ')[0]} →
             </Link>
           ) : (
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--dim)', minWidth: 80, textAlign: 'right' }}>
-              current
-            </span>
+            <Link
+              href="/leaderboard?month=all-time"
+              className="btn-ghost"
+              style={{ fontSize: '0.85rem', minHeight: 36, padding: '0.4rem 1rem' }}
+            >
+              All-time
+            </Link>
           )}
         </div>
 
@@ -142,7 +183,9 @@ export default async function LeaderboardPage({
           {ranked.length === 0 ? (
             <div className="card" style={{ textAlign: 'center', padding: 'var(--space-5)' }}>
               <p style={{ color: 'var(--muted)', margin: 0 }}>
-                No Hackatime data for this month yet.
+                {isAllTime
+                  ? 'No time logged in Hackatime yet.'
+                  : 'No Hackatime data for this month yet.'}
               </p>
             </div>
           ) : (

@@ -2,7 +2,7 @@ const events = [
   {
     title: 'Weekly Build Night',
     time: 'Wednesdays • 3:15 PM',
-    body: 'Open work session for coding, design, feedback, and asking for help when something is blocked.',
+    body: 'Open work session for project time, design, prototyping, feedback, and getting help when something is blocked.',
   },
   {
     title: 'Demo Day',
@@ -23,7 +23,7 @@ export default function EventsPage() {
         <div>
           <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', marginBottom: '0.75rem' }}>Events</h1>
           <p style={{ color: 'var(--muted)', maxWidth: 680 }}>
-            The schedule changes through the semester, but the goal stays the same: keep momentum and keep building.
+            The schedule changes through the semester, but the goal stays the same: make cool things, share progress, and keep projects moving.
           </p>
         </div>
         <div className="grid-cards">

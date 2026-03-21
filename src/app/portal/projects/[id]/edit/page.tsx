@@ -227,7 +227,7 @@ export default function EditProjectPage() {
               )}
             </p>
             <p style={{ margin: '0.15rem 0 0', color: 'var(--muted)', fontSize: '0.8rem' }}>
-              Link a Hackatime project to show coding hours on your gallery page.
+              Link a Hackatime project to show logged time on your gallery page.
             </p>
           </div>
           {!hackatimeConnected && !hackatimeLoading && (
@@ -245,7 +245,7 @@ export default function EditProjectPage() {
         {hackatimeConnected && (
           hackatimeProjects.length === 0 ? (
             <p style={{ margin: 0, color: 'var(--dim)', fontSize: '0.82rem', fontFamily: 'var(--font-mono)' }}>
-              No Hackatime projects found yet  start coding and they&apos;ll appear here.
+              No Hackatime projects found yet  start logging time and they&apos;ll appear here.
             </p>
           ) : (
             <select

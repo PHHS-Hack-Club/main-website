@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createSession, setSessionCookie } from '@/lib/auth'
 import { findAvailableAutoUsername } from '@/lib/member-username'
+import { sendVerificationNotification } from '@/lib/email'
 
 function siteUrl(path: string) {
   const base = process.env.HACKCLUB_REDIRECT_URI
@@ -84,7 +85,7 @@ export async function GET(request: NextRequest) {
       username: member.username,
     })
 
-    const response = NextResponse.redirect(siteUrl(member.username ? '/portal' : '/portal/setup'))
+    const response = NextResponse.redirect(siteUrl('/portal'))
     setSessionCookie(response, token)
     return response
   }
@@ -110,7 +111,7 @@ export async function GET(request: NextRequest) {
       username: created.username,
     })
 
-    const response = NextResponse.redirect(siteUrl(created.username ? '/portal' : '/portal/setup'))
+    const response = NextResponse.redirect(siteUrl('/portal'))
     setSessionCookie(response, token)
     return response
   }
@@ -131,6 +132,15 @@ export async function GET(request: NextRequest) {
           name: name || email,
         },
       })
+
+      const baseUrl = process.env.HACKCLUB_REDIRECT_URI
+        ? new URL(process.env.HACKCLUB_REDIRECT_URI).origin
+        : 'http://localhost:3007'
+      sendVerificationNotification({
+        name: name || email,
+        email,
+        adminUrl: `${baseUrl}/admin/verification`,
+      }).catch(console.error)
     }
   }
 

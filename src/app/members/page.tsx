@@ -198,7 +198,7 @@ export default async function MembersPage() {
                           fontFamily: 'var(--font-mono)',
                         }}
                       >
-                        coded
+                        logged
                       </p>
                     </div>
                   )}

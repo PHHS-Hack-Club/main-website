@@ -43,6 +43,7 @@ model Member {
 
   projects Project[]
   devlogs  Devlog[]
+  attendanceRecords AttendanceRecord[]
 
   @@map("members")
 }
@@ -107,4 +108,16 @@ model VerificationRequest {
   createdAt   DateTime           @default(now()) @map("created_at")
 
   @@map("verification_requests")
+}
+
+model AttendanceRecord {
+  id          String  @id @default(cuid())
+  memberId    String  @map("member_id")
+  date        DateTime @map("date")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, date])
+  @@map("attendance_records")
 }
