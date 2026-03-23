@@ -58,7 +58,7 @@ async function fetchHackatimeHours(
     if (!member?.hackatimeToken) return null;
 
     const res = await fetch(
-      "https://hackatime.hackclub.com/api/v1/authenticated/projects",
+      "https://hackatime.hackclub.com/api/v1/authenticated/projects?include_archived=true",
       {
         headers: { Authorization: `Bearer ${member.hackatimeToken}` },
         next: { revalidate: 3600 },

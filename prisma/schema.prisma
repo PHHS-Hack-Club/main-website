@@ -37,6 +37,7 @@ model Member {
   role            Role     @default(MEMBER)
   profilePictureKey String?  @map("profile_picture_key")
   hackatimeToken  String?  @map("hackatime_token")
+  schoolEmail     String?  @map("school_email")
   websiteUrl      String?  @map("website_url")
   githubUrl       String?  @map("github_url")
   createdAt       DateTime @default(now()) @map("created_at")
@@ -44,6 +45,7 @@ model Member {
   projects Project[]
   devlogs  Devlog[]
   attendanceRecords AttendanceRecord[]
+  mailingListEntry  MailingListEntry[]
 
   @@map("members")
 }
@@ -132,4 +134,52 @@ model AttendanceRecord {
 
   @@unique([memberId, date])
   @@map("attendance_records")
+}
+
+model Meeting {
+  id        String   @id @default(cuid())
+  title     String
+  date      DateTime
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("meetings")
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  date        DateTime
+  description String?
+  location    String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("events")
+}
+
+model MailingListEntry {
+  id          String   @id @default(cuid())
+  name        String
+  schoolEmail String   @map("school_email")
+  memberId    String?  @map("member_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  member Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
+
+  @@unique([schoolEmail])
+  @@map("mailing_list_entries")
+}
+
+model Announcement {
+  id        String    @id @default(cuid())
+  title     String
+  body      String
+  published Boolean   @default(false)
+  emailedAt DateTime? @map("emailed_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("announcements")
 }

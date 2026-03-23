@@ -19,14 +19,25 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <p style={{ color: 'var(--muted)', margin: 0 }}>Verification, roles, and approvals.</p>
           </div>
           <Link href="/admin">Overview</Link>
-          <Link href="/admin/verification">Verification</Link>
+
+          <p style={{ margin: '0.25rem 0 0', fontSize: '0.65rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em', fontWeight: 700, color: 'var(--dim)' }}>MEMBERS</p>
           <Link href="/admin/members">Members</Link>
-          <Link href="/admin/attendance">Attendance</Link>
+          <Link href="/admin/verification">Verification</Link>
+
+          <p style={{ margin: '0.25rem 0 0', fontSize: '0.65rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em', fontWeight: 700, color: 'var(--dim)' }}>CONTENT</p>
           <Link href="/admin/submissions">Submissions</Link>
+          <Link href="/admin/announcements">Announcements</Link>
           <Link href="/admin/modals">Modals</Link>
-          <Link href="/portal" style={{ color: 'var(--muted)' }}>
-            Back to portal
-          </Link>
+
+          <p style={{ margin: '0.25rem 0 0', fontSize: '0.65rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em', fontWeight: 700, color: 'var(--dim)' }}>CLUB</p>
+          <Link href="/admin/meetings">Meetings</Link>
+          <Link href="/admin/events">Events</Link>
+          <Link href="/admin/attendance">Attendance</Link>
+          <Link href="/admin/email">Email</Link>
+
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.5rem' }}>
+            <Link href="/portal" style={{ color: 'var(--muted)' }}>← Portal</Link>
+          </div>
         </aside>
         <div>{children}</div>
       </div>

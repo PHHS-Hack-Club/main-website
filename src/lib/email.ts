@@ -187,3 +187,44 @@ export async function sendSubmissionNotification({
     }),
   })
 }
+
+export async function sendMemberEmail({
+  to,
+  subject,
+  heading,
+  body,
+  badge = 'Announcement',
+  ctaLabel,
+  ctaUrl,
+}: {
+  to: string
+  subject: string
+  heading: string
+  body: string
+  badge?: string
+  ctaLabel?: string
+  ctaUrl?: string
+}) {
+  if (!process.env.SMTP_HOST) return
+
+  const siteUrl = process.env.NEXT_PUBLIC_URL || 'https://phhshack.club'
+  const resolvedCtaLabel = ctaLabel ?? 'View club site'
+  const resolvedCtaUrl = ctaUrl ?? siteUrl
+
+  console.log(`[email] sending member email to ${to}: ${subject}`)
+  await createTransporter().sendMail({
+    from: senderAddress(),
+    to,
+    replyTo: 'aradu28@pascack.org',
+    subject,
+    text: `${heading}\n\n${body}\n\n${resolvedCtaUrl}`,
+    html: emailTemplate({
+      preheader: subject,
+      badge,
+      heading,
+      body: `<p style="margin:0;">${body}</p>`,
+      ctaLabel: resolvedCtaLabel,
+      ctaUrl: resolvedCtaUrl,
+    }),
+  })
+}

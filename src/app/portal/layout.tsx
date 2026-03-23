@@ -4,6 +4,7 @@ import { getSession, isAdmin } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getFileUrl } from '@/lib/minio'
 import ProfilePictureUpload from '@/components/ProfilePictureUpload'
+import ProfileEditor from '@/components/ProfileEditor'
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession()
@@ -14,7 +15,14 @@ export default async function PortalLayout({ children }: { children: React.React
 
   const member = await prisma.member.findUnique({
     where: { id: session.memberId },
-    select: { profilePictureKey: true, username: true },
+    select: {
+      profilePictureKey: true,
+      username: true,
+      headline: true,
+      bio: true,
+      websiteUrl: true,
+      githubUrl: true,
+    },
   })
 
   const profilePictureUrl = member?.profilePictureKey
@@ -27,27 +35,44 @@ export default async function PortalLayout({ children }: { children: React.React
         <aside className="card stack" style={{ position: 'sticky', top: 88 }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
             <ProfilePictureUpload currentUrl={profilePictureUrl} name={session.name} />
-            <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.82rem', letterSpacing: '0.08em' }}>MEMBER PORTAL</p>
-            <h2 style={{ marginBottom: '0.35rem' }}>{session.name}</h2>
-            <p style={{ margin: 0, color: 'var(--muted)' }}>{session.email}</p>
+            <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.75rem', letterSpacing: '0.1em', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>MEMBER PORTAL</p>
+            <h2 style={{ margin: 0, textAlign: 'center', fontSize: '1rem' }}>{session.name}</h2>
+            <p style={{ margin: '0.1rem 0 0', color: 'var(--dim)', fontSize: '0.78rem', textAlign: 'center' }}>{session.email}</p>
           </div>
+
+          <ProfileEditor
+            mode="modal"
+            name={session.name}
+            currentImageUrl={profilePictureUrl}
+            triggerLabel="Edit Profile"
+            triggerClassName="btn-ghost"
+            initialValues={{
+              headline: member?.headline ?? '',
+              bio: member?.bio ?? '',
+              websiteUrl: member?.websiteUrl ?? '',
+              githubUrl: member?.githubUrl ?? '',
+            }}
+          />
+
           {!member?.username && (
-            <p style={{ margin: 0, color: 'var(--orange)', fontSize: '0.86rem' }}>
-              Ask an admin to assign your public username.
+            <p style={{ margin: 0, color: 'var(--orange)', fontSize: '0.82rem' }}>
+              Ask an admin to set your username.
             </p>
           )}
           {member?.username && (
-            <Link href={`/members/${member.username}`}>
-              View public profile
-            </Link>
+            <Link href={`/members/${member.username}`}>View public profile</Link>
           )}
-          <Link href="/portal">Dashboard</Link>
-          <Link href="/portal/projects/new">New project</Link>
-          <Link href="/portal/devlogs/new">New devlog</Link>
-          {isAdmin(session) && <Link href="/admin">Admin</Link>}
-          <a href="/api/auth/logout" style={{ color: 'var(--red)' }}>
-            Sign out
-          </a>
+
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            <Link href="/portal">Dashboard</Link>
+            <Link href="/portal/projects/new">New project</Link>
+            <Link href="/portal/devlogs/new">New devlog</Link>
+          </div>
+
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            {isAdmin(session) && <Link href="/admin">Admin panel</Link>}
+            <a href="/api/auth/logout" style={{ color: 'var(--red)' }}>Sign out</a>
+          </div>
         </aside>
         <div>{children}</div>
       </div>

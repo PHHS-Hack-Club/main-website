@@ -151,6 +151,7 @@ export default function AboutPage() {
           </p>
           <div style={{ display: 'flex', gap: '0.875rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/gallery" className="btn-outline">See what we&apos;ve built</Link>
+            <Link href="/mailing-list" className="btn-outline">Join the mailing list</Link>
             <a href="mailto:hack@phhs.edu" className="btn-primary">Get in touch →</a>
           </div>
         </section>

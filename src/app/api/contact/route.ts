@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   try {
     await createTransporter().sendMail({
       from: process.env.SMTP_USER ? `"PHHS Hack Club Contact" <${process.env.SMTP_USER}>` : email,
-      to: process.env.CONTACT_EMAIL_TO,
+      to: 'al3x.radu1@gmail.com',
       replyTo: email,
       subject: `PHHS Hack Club Contact: ${name}`,
       text: `Name: ${name}\nEmail: ${email}\n\n${message}`,

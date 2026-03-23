@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getSession } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
 const highlights = [
   {
@@ -39,6 +40,12 @@ export default async function HomePage({
   const pending = params?.pending === 'true'
   const error = typeof params?.error === 'string' ? params.error : ''
   const session = await getSession()
+
+  const announcements = await prisma.announcement.findMany({
+  where: { published: true },
+  orderBy: { createdAt: 'desc' },
+  select: { id: true, title: true, body: true, createdAt: true },
+})
 
   return (
     <>
@@ -228,6 +235,27 @@ export default async function HomePage({
           </div>
         </div>
       </section>
+
+      {announcements.length > 0 && (
+        <section id="announcements" style={{ paddingTop: 'var(--space-5)' }}>
+          <p style={{ margin: '0 0 var(--space-3)', color: 'var(--muted)', fontSize: '0.7rem', letterSpacing: '0.12em', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
+            {'// ANNOUNCEMENTS'}
+          </p>
+          <div className="stack">
+            {announcements.map((a) => (
+              <article key={a.id} className="card animate-up" style={{ borderColor: 'rgba(236,55,80,0.2)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+                  <h3 style={{ margin: 0, fontSize: '1rem' }}>{a.title}</h3>
+                  <span style={{ color: 'var(--dim)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', flexShrink: 0 }}>
+                    {a.createdAt.toLocaleDateString()}
+                  </span>
+                </div>
+                <p style={{ margin: '0.5rem 0 0', color: 'var(--muted)', lineHeight: 1.7, fontSize: '0.92rem' }}>{a.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
     </>
   )

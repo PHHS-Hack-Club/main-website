@@ -68,9 +68,14 @@ export default async function MembersPage() {
           >
             Who we are.
           </h1>
-          <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.95rem' }}>
-            {rows.length} members building things at PHHS.
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+            <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.95rem' }}>
+              {rows.length} members building things at PHHS.
+            </p>
+            <Link href="/leaderboard" style={{ color: 'var(--orange)', fontSize: '0.85rem', fontWeight: 700 }}>
+              Leaderboard →
+            </Link>
+          </div>
         </div>
 
         <div className='grid-cards'>
@@ -157,7 +162,7 @@ export default async function MembersPage() {
                 <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-end' }}>
                   <div>
                     <p
-                      style={{
+                      style={{ 
                         margin: '0 0 0.2rem',
                         fontWeight: 800,
                         fontFamily: 'var(--font-mono)',
