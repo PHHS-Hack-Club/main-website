@@ -137,12 +137,15 @@ model AttendanceRecord {
 }
 
 model Meeting {
-  id        String   @id @default(cuid())
-  title     String
-  date      DateTime
-  notes     String?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id                   String    @id @default(cuid())
+  title                String
+  date                 DateTime
+  notes                String?
+  summary              String?
+  materials            String?
+  summaryReminderSentAt DateTime? @map("summary_reminder_sent_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
 
   @@map("meetings")
 }

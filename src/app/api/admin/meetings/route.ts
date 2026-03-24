@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server'
 import { getSession, isAdmin } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
+function toOptionalText(value: unknown) {
+  if (typeof value !== 'string') return null
+  return value.trim() ? value : null
+}
+
 export async function GET() {
   const session = await getSession()
   if (!session || !isAdmin(session)) {
@@ -12,7 +17,6 @@ export async function GET() {
     orderBy: { date: 'desc' },
   })
 
-  // Pull attendance counts for all meeting dates in one query
   const attendanceCounts = await prisma.attendanceRecord.groupBy({
     by: ['date'],
     _count: { id: true },
@@ -40,13 +44,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { title, date, notes } = await req.json()
+  const body = await req.json()
+  const title = toOptionalText(body.title)
+  const date = typeof body.date === 'string' && body.date.trim() ? body.date : null
+
   if (!title || !date) {
     return NextResponse.json({ error: 'title and date are required' }, { status: 400 })
   }
 
   const meeting = await prisma.meeting.create({
-    data: { title, date: new Date(date), notes: notes || null },
+    data: {
+      title,
+      date: new Date(date),
+      notes: toOptionalText(body.notes),
+      summary: toOptionalText(body.summary),
+      materials: toOptionalText(body.materials),
+    },
   })
 
   return NextResponse.json(meeting, { status: 201 })

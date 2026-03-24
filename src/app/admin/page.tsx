@@ -9,7 +9,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
 })
 
 export default async function AdminPage() {
-  const now = new Date()
+  const todayStart = new Date(`${new Date().toISOString().split('T')[0]}T00:00:00.000Z`)
 
   const [
     memberCount,
@@ -27,11 +27,11 @@ export default async function AdminPage() {
     prisma.devlog.count({ where: { status: 'PENDING' } }),
     prisma.meeting.count(),
     prisma.meeting.findFirst({
-      where: { date: { gte: now } },
+      where: { date: { gte: todayStart } },
       orderBy: { date: 'asc' },
     }),
     prisma.meeting.findFirst({
-      where: { date: { lt: now } },
+      where: { date: { lt: todayStart } },
       orderBy: { date: 'desc' },
     }),
     prisma.project.findMany({

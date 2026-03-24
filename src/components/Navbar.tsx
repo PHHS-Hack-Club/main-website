@@ -55,10 +55,11 @@ function NavDropdownItem({
   }
 
   return (
-    <div style={{ position: 'relative' }} onMouseEnter={show} onMouseLeave={hide}>
+    <div className="nav-dropdown-wrapper" onMouseEnter={show} onMouseLeave={hide}>
       <button
         type="button"
         onClick={() => (isOpen ? onClose() : onOpen())}
+        className="nav-dropdown-trigger"
         style={{
           background: 'none',
           border: 'none',
@@ -92,27 +93,16 @@ function NavDropdownItem({
 
       {isOpen && (
         <div
+          className="nav-dropdown-panel"
           onMouseEnter={show}
           onMouseLeave={hide}
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 12px)',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: '#1a1726',
-            border: '1px solid rgba(200, 190, 255, 0.11)',
-            borderRadius: '10px',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.55)',
-            minWidth: 230,
-            zIndex: 1000,
-            padding: '0.35rem',
-          }}
         >
           {item.children!.map((child, i) => (
             <Link
               key={child.href}
               href={child.href}
               onClick={() => { onClose(); onNavClose() }}
+              className="nav-dropdown-link"
               style={{
                 display: 'block',
                 padding: '0.55rem 0.75rem',

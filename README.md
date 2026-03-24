@@ -1,63 +1,96 @@
-# PHHS Hack Club Website
+# PHHS Hack Club Site
 
-Official website and member portal for Pascack Hills High School's Hack Club chapter.
+Official website, member portal, and admin tools for Pascack Hills High School Hack Club.
 
-This project includes the public-facing club site, a member portal for submitting projects and devlogs, a gallery for approved work, and an admin panel for managing member verification and submissions.
+## Overview
 
-## What The Site Does
+This repo powers:
 
-- Publishes public pages for the club, including the home page, about page, events page, gallery, donate page, contact page, members page, and Hackatime leaderboard
-- Lets verified members sign in with Hack Club OAuth
-- Gives members a portal to create projects, write devlogs in Markdown, upload images, and submit work for review
-- Shows approved projects in a public gallery with screenshots, rendered Markdown, and coding-hour data from Hackatime
-- Gives club admins tools to approve verification requests, review submissions, and manage member roles
+- The public club site
+- A member portal for projects and devlogs
+- A gallery for approved work
+- Admin tools for meetings, attendance, announcements, verification, and email
+- A PM2-managed reminder worker that emails admins when a meeting summary still needs to be filled out
 
-## Tech Stack
+## Stack
 
 | Layer | Technology |
 | --- | --- |
-| Framework | Next.js App Router + React + TypeScript |
+| Framework | Next.js App Router |
+| UI | React + TypeScript |
 | Database | PostgreSQL |
 | ORM | Prisma |
-| File storage | MinIO (S3-compatible object storage) |
-| Authentication | Hack Club OAuth + signed JWT session cookies |
+| File storage | MinIO |
+| Auth | Hack Club OAuth + JWT session cookies |
 | Email | Nodemailer |
-| Content editing | Markdown editor + Markdown preview |
-| Deployment | PM2 |
+| Markdown | `react-markdown`, `remark-gfm`, `rehype-raw` |
+| Process manager | PM2 |
 
-## Core Features
+## Features
 
-### Public Site
+### Public site
 
-- Home, about, events, gallery, donate, contact, members, and leaderboard pages
-- Club information, meeting schedule, and donation messaging
-- Public gallery pages for approved student projects
-- Members directory with roles, approved-project counts, and optional profile pictures
-- Monthly Hackatime leaderboard
+- Home, about, events, meetings, gallery, members, donate, contact, mailing list, and leaderboard pages
+- Public meeting schedule with past-meeting summaries and materials
+- Public gallery for approved projects
+- Member profile pages and directory
 
-### Member Portal
+### Member portal
 
-- Hack Club OAuth login flow
-- Project creation and editing
-- Devlog creation and editing
-- Image uploads backed by MinIO
-- Markdown-based writing flow
-- Draft and submission status tracking
-- Debounced autosave for project drafts
-- Optional Hackatime project linking so gallery pages can display coding hours
+- Hack Club sign-in
+- Project drafts and submissions
+- Devlog drafts and submissions
+- Markdown editing and preview
+- Image uploads through MinIO
+- Optional Hackatime project linking
 
-### Admin Tools
+### Admin tools
 
-- Verification request approval flow
-- Submission review queue for projects and devlogs
-- Member management with role-based access
+- Verification approval
+- Submission review
+- Member management
+- Meeting scheduling
+- Meeting summaries and materials
+- Attendance tracking and reporting
+- Announcement publishing and email sending
+- General admin email tools
+- Site modal management
 
-## Local Development
+### Background worker
 
-### Prerequisites
+- `phhs-site-meeting-summary-worker` runs under PM2
+- Polls the internal reminder endpoint once per minute
+- Sends summary reminder emails after 5:00 PM America/New_York on meeting days
+- Uses `summaryReminderSentAt` to avoid duplicate sends
 
-- Node.js 20+
+## Project structure
+
+```text
+src/
+  app/
+    admin/          admin pages
+    api/            route handlers
+    portal/         member portal pages
+    ...             public routes
+  components/       shared UI and client components
+  lib/              auth, Prisma, email, storage, and utilities
+prisma/
+  schema.prisma
+  migrations/
+public/
+scripts/
+  meeting-summary-reminder-worker.mjs
+docs/
+  plans/
+```
+
+## Requirements
+
+- Node.js 22+
 - Docker and Docker Compose
+- PostgreSQL and MinIO containers from `docker compose`
+
+## Local setup
 
 ### 1. Install dependencies
 
@@ -67,8 +100,6 @@ npm install
 
 ### 2. Start local services
 
-This repo includes local PostgreSQL and MinIO containers:
-
 ```bash
 docker compose up -d
 ```
@@ -76,26 +107,32 @@ docker compose up -d
 Default local ports:
 
 - App: `3007`
-- PostgreSQL: `5434`
+- Postgres: `5434`
 - MinIO API: `9002`
 - MinIO Console: `9003`
 
-### 3. Configure environment variables
+### 3. Configure environment
 
 ```bash
 cp .env.example .env
 ```
 
-Then fill in the required values for Hack Club OAuth, Hackatime OAuth, SMTP, admin email, and JWT signing.
+Fill in the OAuth, SMTP, admin, and JWT values before using the full app.
 
-### 4. Set up the database
+### 4. Set up Prisma
 
 ```bash
+npx prisma migrate deploy
 npx prisma generate
-npx prisma migrate dev
 ```
 
-### 5. Start the app
+If you are creating a new local migration during development:
+
+```bash
+npx prisma migrate dev --name your_change_name
+```
+
+### 5. Run the app
 
 ```bash
 npm run dev
@@ -103,64 +140,67 @@ npm run dev
 
 Open `http://localhost:3007`.
 
-## Environment Variables
+## Environment variables
 
-The full template lives in [`.env.example`](/srv/md0/hackclub/phhs-site/.env.example).
+See [`.env.example`](/srv/md0/hackclub/phhs-site/.env.example) for the full template.
 
 ### Database
 
 ```env
-DATABASE_URL=
+DATABASE_URL=postgresql://phhs:password@localhost:5434/phhs_hack_club
 ```
 
 ### MinIO
 
 ```env
-MINIO_ENDPOINT=
-MINIO_PORT=
-MINIO_ACCESS_KEY=
-MINIO_SECRET_KEY=
-MINIO_BUCKET=
-MINIO_USE_SSL=
-MINIO_PUBLIC_URL=
+MINIO_ENDPOINT=localhost
+MINIO_PORT=9002
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET=phhs-uploads
+MINIO_USE_SSL=false
+MINIO_PUBLIC_URL=http://localhost:9002/phhs-uploads
 ```
 
-`MINIO_PUBLIC_URL` should point to the public base path for the configured bucket, for example `http://localhost:9002/phhs-uploads`.
-
-### Hack Club Auth
+### Hack Club auth
 
 ```env
 HACKCLUB_CLIENT_ID=
 HACKCLUB_CLIENT_SECRET=
-HACKCLUB_REDIRECT_URI=
+HACKCLUB_REDIRECT_URI=http://localhost:3007/api/auth/callback
 ```
 
-### Hackatime Auth
+### Hackatime auth
 
 ```env
 HACKATIME_CLIENT_ID=
 HACKATIME_CLIENT_SECRET=
-HACKATIME_REDIRECT_URI=
+HACKATIME_REDIRECT_URI=http://localhost:3007/api/auth/hackatime/callback
 ```
 
 ### Email
 
 ```env
 SMTP_HOST=
-SMTP_PORT=
+SMTP_PORT=587
 SMTP_USER=
 SMTP_PASS=
 CONTACT_EMAIL_TO=
+ADMIN_EMAIL=
 ```
 
-### Admin / Session
+### App and jobs
 
 ```env
-ADMIN_EMAIL=
-JWT_SECRET=
+JWT_SECRET=change-me
+NEXT_PUBLIC_URL=https://your-site.com
+OPENROUTER_API_KEY=
+CRON_SECRET=
 ```
 
-## Available Commands
+`CRON_SECRET` protects the internal meeting-summary reminder endpoint and is required for the PM2 worker.
+
+## Commands
 
 ```bash
 npm run dev
@@ -173,36 +213,47 @@ npm run prisma:generate
 Useful Prisma commands:
 
 ```bash
-npx prisma migrate dev
+npx prisma migrate dev --name your_change_name
 npx prisma migrate deploy
+npx prisma generate
 npx prisma studio
 ```
 
-## Project Structure
+## Deployment
 
-```text
-src/
-  app/
-    api/            route handlers
-    admin/          admin dashboard pages
-    portal/         member portal pages
-    about/          public pages
-    contact/
-    donate/
-    events/
-    gallery/
-    leaderboard/
-    members/
-  components/       shared UI and client components
-  lib/              auth, Prisma, MinIO, and server utilities
-prisma/
-  schema.prisma     database schema
-  migrations/       Prisma migrations
-public/             static assets
-docs/plans/         planning notes
+Production uses PM2 with [ecosystem.config.js](/srv/md0/hackclub/phhs-site/ecosystem.config.js).
+
+Build and restart the web app:
+
+```bash
+npm run build
 ```
 
-## Database Model
+Start both the site and the worker:
+
+```bash
+pm2 start ecosystem.config.js
+```
+
+Reload both with updated env:
+
+```bash
+pm2 startOrReload ecosystem.config.js --update-env
+```
+
+Save the current PM2 process list:
+
+```bash
+pm2 save
+```
+
+Inspect worker logs:
+
+```bash
+pm2 logs phhs-site-meeting-summary-worker
+```
+
+## Data model
 
 Main Prisma models:
 
@@ -211,38 +262,40 @@ Main Prisma models:
 - `Devlog`
 - `Image`
 - `VerificationRequest`
+- `SiteModal`
+- `AttendanceRecord`
+- `Meeting`
+- `Event`
+- `MailingListEntry`
+- `Announcement`
 
-The schema also defines `Role`, `SubmissionStatus`, and `VerificationStatus` enums.
+Relevant enums:
 
-## Deployment
-
-Production is configured to run through PM2 using [`ecosystem.config.js`](/srv/md0/hackclub/phhs-site/ecosystem.config.js).
-
-```bash
-npm run build
-pm2 start ecosystem.config.js
-```
-
-Or restart an existing process:
-
-```bash
-pm2 restart phhs-site
-```
+- `Role`
+- `SubmissionStatus`
+- `VerificationStatus`
 
 ## Validation
 
-There is no dedicated automated test suite yet. Before shipping changes, run:
+There is no automated test suite yet. Before shipping changes, run:
 
 ```bash
 npm run lint
 npm run build
 ```
 
-Manual verification is especially important for:
+Manual verification matters most for:
 
-- OAuth login flows
-- Portal project submission
-- Devlog submission
-- Image upload behavior
-- Contact form email delivery
+- Auth flows
+- Project and devlog submission
+- Image uploads
 - Admin approval flows
+- Attendance tracking
+- Meeting summary editing
+- Reminder email delivery
+
+## Notes
+
+- `npm run build` runs `next build` and then restarts `phhs-site` through PM2
+- The reminder scheduler is implemented as a separate PM2 worker, not a system cron job
+- Prisma migration history in `prisma/migrations/` must stay intact

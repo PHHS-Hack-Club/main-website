@@ -419,6 +419,26 @@ select.field:focus {
   background: rgba(200, 190, 255, 0.06);
 }
 
+.nav-dropdown-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1726;
+  border: 1px solid rgba(200, 190, 255, 0.11);
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+  min-width: 230px;
+  z-index: 1000;
+  padding: 0.35rem;
+}
+
 /* ─────────────────────────────────────────────────────────────────
    Markdown
 ───────────────────────────────────────────────────────────────── */
@@ -766,6 +786,37 @@ select.field:focus {
   .nav-links .btn-outline {
     margin-top: 0.25rem;
     justify-content: center;
+  }
+
+  /* Dropdowns go inline (accordion) on mobile instead of floating */
+  .nav-dropdown-wrapper {
+    position: static;
+  }
+
+  .nav-dropdown-trigger {
+    width: 100%;
+    padding: 0.65rem 0.75rem !important;
+    justify-content: space-between;
+  }
+
+  .nav-dropdown-panel {
+    position: static;
+    transform: none;
+    top: auto;
+    left: auto;
+    min-width: 0;
+    width: 100%;
+    background: rgba(200, 190, 255, 0.04);
+    border: 1px solid rgba(200, 190, 255, 0.08);
+    border-radius: var(--radius-sm);
+    box-shadow: none;
+    padding: 0.25rem;
+    margin-top: 0.25rem;
+  }
+
+  .nav-dropdown-link {
+    padding: 0.6rem 0.75rem !important;
+    border-radius: var(--radius-sm) !important;
   }
 
   .shell-grid {

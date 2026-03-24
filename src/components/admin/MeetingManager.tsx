@@ -1,12 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import MarkdownEditor from '@/components/MarkdownEditor'
+import MarkdownPreview from '@/components/MarkdownPreview'
 
 interface Meeting {
   id: string
   title: string
   date: string
   notes: string | null
+  summary: string | null
+  materials: string | null
+  summaryReminderSentAt: string | null
   attendanceCount: number
   totalMembers: number
 }
@@ -23,22 +28,26 @@ function toDateInput(iso: string) {
   return new Date(iso).toISOString().split('T')[0]
 }
 
+function dateKey(iso: string) {
+  return new Date(iso).toISOString().split('T')[0]
+}
+
 export default function MeetingManager() {
   const [meetings, setMeetings] = useState<Meeting[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // create form
   const [title, setTitle] = useState('')
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0])
   const [notes, setNotes] = useState('')
   const [creating, setCreating] = useState(false)
 
-  // edit state
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
   const [editDate, setEditDate] = useState('')
   const [editNotes, setEditNotes] = useState('')
+  const [editSummary, setEditSummary] = useState('')
+  const [editMaterials, setEditMaterials] = useState('')
   const [saving, setSaving] = useState(false)
 
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -82,11 +91,13 @@ export default function MeetingManager() {
     }
   }
 
-  function startEdit(m: Meeting) {
-    setEditingId(m.id)
-    setEditTitle(m.title)
-    setEditDate(toDateInput(m.date))
-    setEditNotes(m.notes ?? '')
+  function startEdit(meeting: Meeting) {
+    setEditingId(meeting.id)
+    setEditTitle(meeting.title)
+    setEditDate(toDateInput(meeting.date))
+    setEditNotes(meeting.notes ?? '')
+    setEditSummary(meeting.summary ?? '')
+    setEditMaterials(meeting.materials ?? '')
   }
 
   async function saveEdit(id: string) {
@@ -96,7 +107,13 @@ export default function MeetingManager() {
       const res = await fetch(`/api/admin/meetings/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: editTitle, date: editDate, notes: editNotes }),
+        body: JSON.stringify({
+          title: editTitle,
+          date: editDate,
+          notes: editNotes,
+          summary: editSummary,
+          materials: editMaterials,
+        }),
       })
       if (!res.ok) throw new Error('Failed to save')
       setEditingId(null)
@@ -122,14 +139,14 @@ export default function MeetingManager() {
     }
   }
 
-  const upcoming = meetings.filter((m) => new Date(m.date) >= new Date(new Date().toDateString()))
-  const past = meetings.filter((m) => new Date(m.date) < new Date(new Date().toDateString()))
+  const todayKey = new Date().toISOString().split('T')[0]
+  const upcoming = meetings.filter((meeting) => dateKey(meeting.date) >= todayKey)
+  const past = meetings.filter((meeting) => dateKey(meeting.date) < todayKey)
 
   return (
     <div className="stack">
       {error && <p style={{ color: 'var(--red)', margin: 0 }}>{error}</p>}
 
-      {/* Create form */}
       <section className="card stack">
         <h2 style={{ margin: 0, fontSize: '1rem', fontWeight: 800 }}>Schedule a Meeting</h2>
         <form onSubmit={create} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -153,7 +170,7 @@ export default function MeetingManager() {
           </div>
           <textarea
             className="field"
-            placeholder="Notes (optional)"
+            placeholder="Notes before the meeting (optional)"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
@@ -171,57 +188,63 @@ export default function MeetingManager() {
         <p style={{ color: 'var(--muted)' }}>Loading…</p>
       ) : (
         <>
-          {/* Upcoming meetings */}
           {upcoming.length > 0 && (
             <section className="stack">
               <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em', fontWeight: 700 }}>
                 UPCOMING
               </p>
-              {upcoming.map((m) => (
+              {upcoming.map((meeting) => (
                 <MeetingRow
-                  key={m.id}
-                  meeting={m}
-                  isEditing={editingId === m.id}
+                  key={meeting.id}
+                  meeting={meeting}
+                  isEditing={editingId === meeting.id}
                   editTitle={editTitle}
                   editDate={editDate}
                   editNotes={editNotes}
+                  editSummary={editSummary}
+                  editMaterials={editMaterials}
                   saving={saving}
-                  deleting={deletingId === m.id}
-                  onEdit={() => startEdit(m)}
-                  onSave={() => saveEdit(m.id)}
+                  deleting={deletingId === meeting.id}
+                  onEdit={() => startEdit(meeting)}
+                  onSave={() => saveEdit(meeting.id)}
                   onCancelEdit={() => setEditingId(null)}
-                  onDelete={() => deleteMeeting(m.id)}
+                  onDelete={() => deleteMeeting(meeting.id)}
                   setEditTitle={setEditTitle}
                   setEditDate={setEditDate}
                   setEditNotes={setEditNotes}
+                  setEditSummary={setEditSummary}
+                  setEditMaterials={setEditMaterials}
                 />
               ))}
             </section>
           )}
 
-          {/* Past meetings */}
           {past.length > 0 && (
             <section className="stack">
               <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em', fontWeight: 700 }}>
                 PAST
               </p>
-              {past.map((m) => (
+              {past.map((meeting) => (
                 <MeetingRow
-                  key={m.id}
-                  meeting={m}
-                  isEditing={editingId === m.id}
+                  key={meeting.id}
+                  meeting={meeting}
+                  isEditing={editingId === meeting.id}
                   editTitle={editTitle}
                   editDate={editDate}
                   editNotes={editNotes}
+                  editSummary={editSummary}
+                  editMaterials={editMaterials}
                   saving={saving}
-                  deleting={deletingId === m.id}
-                  onEdit={() => startEdit(m)}
-                  onSave={() => saveEdit(m.id)}
+                  deleting={deletingId === meeting.id}
+                  onEdit={() => startEdit(meeting)}
+                  onSave={() => saveEdit(meeting.id)}
                   onCancelEdit={() => setEditingId(null)}
-                  onDelete={() => deleteMeeting(m.id)}
+                  onDelete={() => deleteMeeting(meeting.id)}
                   setEditTitle={setEditTitle}
                   setEditDate={setEditDate}
                   setEditNotes={setEditNotes}
+                  setEditSummary={setEditSummary}
+                  setEditMaterials={setEditMaterials}
                 />
               ))}
             </section>
@@ -244,6 +267,8 @@ function MeetingRow({
   editTitle,
   editDate,
   editNotes,
+  editSummary,
+  editMaterials,
   saving,
   deleting,
   onEdit,
@@ -253,23 +278,31 @@ function MeetingRow({
   setEditTitle,
   setEditDate,
   setEditNotes,
+  setEditSummary,
+  setEditMaterials,
 }: {
   meeting: Meeting
   isEditing: boolean
   editTitle: string
   editDate: string
   editNotes: string
+  editSummary: string
+  editMaterials: string
   saving: boolean
   deleting: boolean
   onEdit: () => void
   onSave: () => void
   onCancelEdit: () => void
   onDelete: () => void
-  setEditTitle: (v: string) => void
-  setEditDate: (v: string) => void
-  setEditNotes: (v: string) => void
+  setEditTitle: (value: string) => void
+  setEditDate: (value: string) => void
+  setEditNotes: (value: string) => void
+  setEditSummary: (value: string) => void
+  setEditMaterials: (value: string) => void
 }) {
-  const isPast = new Date(meeting.date) < new Date(new Date().toDateString())
+  const todayKey = new Date().toISOString().split('T')[0]
+  const isPast = dateKey(meeting.date) < todayKey
+  const summaryMissing = !meeting.summary || !meeting.summary.trim()
 
   if (isEditing) {
     return (
@@ -289,14 +322,38 @@ function MeetingRow({
             style={{ width: 180 }}
           />
         </div>
+
         <textarea
           className="field"
           value={editNotes}
           onChange={(e) => setEditNotes(e.target.value)}
           rows={2}
-          placeholder="Notes (optional)"
+          placeholder="Notes before the meeting (optional)"
           style={{ resize: 'vertical' }}
         />
+
+        <div className="stack" style={{ gap: '0.45rem' }}>
+          <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.08em' }}>
+            SUMMARY
+          </p>
+          <MarkdownEditor
+            value={editSummary}
+            onChange={setEditSummary}
+            minHeight={180}
+          />
+        </div>
+
+        <div className="stack" style={{ gap: '0.45rem' }}>
+          <p style={{ margin: 0, fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.08em' }}>
+            MATERIALS / LINKS
+          </p>
+          <MarkdownEditor
+            value={editMaterials}
+            onChange={setEditMaterials}
+            minHeight={140}
+          />
+        </div>
+
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button className="btn-primary" onClick={onSave} disabled={saving}>
             {saving ? 'Saving…' : 'Save'}
@@ -311,22 +368,49 @@ function MeetingRow({
 
   return (
     <div className="card" style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-      <div>
+      <div style={{ flex: 1, minWidth: 280 }}>
         <p style={{ margin: '0 0 0.25rem', fontWeight: 800, fontSize: '1rem' }}>{meeting.title}</p>
         <p style={{ margin: '0 0 0.25rem', color: 'var(--muted)', fontSize: '0.82rem', fontFamily: 'var(--font-mono)' }}>
           {fmt.format(new Date(meeting.date))}
         </p>
+
         {meeting.notes && (
           <p style={{ margin: '0.35rem 0 0', color: 'var(--muted)', fontSize: '0.85rem' }}>
             {meeting.notes}
           </p>
         )}
+
         {isPast && (
           <p style={{ margin: '0.5rem 0 0', color: 'var(--dim)', fontSize: '0.78rem', fontFamily: 'var(--font-mono)' }}>
             {meeting.attendanceCount} / {meeting.totalMembers} attended
           </p>
         )}
+
+        {isPast && summaryMissing && (
+          <p style={{ margin: '0.5rem 0 0', color: 'var(--orange)', fontSize: '0.78rem', fontFamily: 'var(--font-mono)' }}>
+            Summary missing{meeting.summaryReminderSentAt ? ' · reminder sent' : ''}
+          </p>
+        )}
+
+        {isPast && meeting.summary && (
+          <div style={{ marginTop: '0.85rem' }}>
+            <p style={{ margin: '0 0 0.35rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.08em' }}>
+              SUMMARY
+            </p>
+            <MarkdownPreview source={meeting.summary} fallback="No summary yet." />
+          </div>
+        )}
+
+        {isPast && meeting.materials && (
+          <div style={{ marginTop: '0.85rem' }}>
+            <p style={{ margin: '0 0 0.35rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.08em' }}>
+              MATERIALS / LINKS
+            </p>
+            <MarkdownPreview source={meeting.materials} fallback="No materials yet." />
+          </div>
+        )}
       </div>
+
       <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
         <button className="btn-ghost" style={{ minHeight: 34, padding: '0.4rem 0.75rem', fontSize: '0.82rem' }} onClick={onEdit}>
           Edit

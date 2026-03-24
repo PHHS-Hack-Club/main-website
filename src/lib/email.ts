@@ -15,6 +15,14 @@ function senderAddress() {
   return `"PHHS Hack Club" <${process.env.SMTP_USER}>`
 }
 
+const meetingDateFmt = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long',
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+  timeZone: 'UTC',
+})
+
 function emailTemplate({
   preheader,
   badge,
@@ -183,6 +191,45 @@ export async function sendSubmissionNotification({
       heading: title,
       body: `<p style="margin:0;"><strong style="color:#ffffff;">${memberName}</strong> submitted this ${type} for approval. Review it and approve or reject it from the admin panel.</p>`,
       ctaLabel: 'Review submission',
+      ctaUrl: adminUrl,
+    }),
+  })
+}
+
+export async function sendMeetingSummaryReminder({
+  to,
+  meetingTitle,
+  meetingDate,
+  adminUrl,
+}: {
+  to: string | string[]
+  meetingTitle: string
+  meetingDate: Date
+  adminUrl: string
+}) {
+  if (!process.env.SMTP_HOST) return
+
+  const formattedDate = meetingDateFmt.format(meetingDate)
+  const logTarget = Array.isArray(to) ? to.join(', ') : to
+
+  console.log(`[email] sending meeting summary reminder for "${meetingTitle}" to ${logTarget}`)
+  await createTransporter().sendMail({
+    from: senderAddress(),
+    to,
+    subject: `Meeting Summary Needed: ${meetingTitle}`,
+    text:
+      `Please fill out the summary for "${meetingTitle}" on ${formattedDate}.\n\n` +
+      `Include what happened and any materials, handouts, or links from the meeting.\n\n` +
+      `Open the meetings admin page here: ${adminUrl}`,
+    html: emailTemplate({
+      preheader: `Fill out the meeting summary for ${meetingTitle}`,
+      badge: 'Meeting Summary',
+      heading: `Add the summary for ${meetingTitle}`,
+      body:
+        `<p style="margin:0 0 12px;">Today's meeting is on the calendar, but its recap is still empty.</p>` +
+        `<p style="margin:0 0 12px;">Please add <strong style="color:#ffffff;">what happened</strong> and any <strong style="color:#ffffff;">materials, handouts, or links</strong> from the meeting.</p>` +
+        `<p style="margin:0;"><span style="font-family:monospace;font-size:13px;background:#12121a;border:1px solid #2a2a38;border-radius:4px;padding:3px 8px;color:#a0a0b8;">${formattedDate}</span></p>`,
+      ctaLabel: 'Open meetings admin',
       ctaUrl: adminUrl,
     }),
   })

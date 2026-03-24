@@ -1,3 +1,4 @@
+import MarkdownPreview from '@/components/MarkdownPreview'
 import { prisma } from '@/lib/prisma'
 
 const dateFmt = new Intl.DateTimeFormat('en-US', {
@@ -15,25 +16,24 @@ const monthFmt = new Intl.DateTimeFormat('en-US', {
 })
 
 export default async function MeetingsPage() {
-  const now = new Date()
+  const todayStart = new Date(`${new Date().toISOString().split('T')[0]}T00:00:00.000Z`)
 
   const [upcoming, past] = await Promise.all([
     prisma.meeting.findMany({
-      where: { date: { gte: now } },
+      where: { date: { gte: todayStart } },
       orderBy: { date: 'asc' },
     }),
     prisma.meeting.findMany({
-      where: { date: { lt: now } },
+      where: { date: { lt: todayStart } },
       orderBy: { date: 'desc' },
     }),
   ])
 
-  // Group past meetings by month
   const byMonth = new Map<string, typeof past>()
-  for (const m of past) {
-    const key = monthFmt.format(m.date)
+  for (const meeting of past) {
+    const key = monthFmt.format(meeting.date)
     if (!byMonth.has(key)) byMonth.set(key, [])
-    byMonth.get(key)!.push(m)
+    byMonth.get(key)!.push(meeting)
   }
 
   return (
@@ -56,9 +56,9 @@ export default async function MeetingsPage() {
             <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.12em', fontWeight: 700 }}>
               UPCOMING
             </p>
-            {upcoming.map((m) => (
+            {upcoming.map((meeting) => (
               <article
-                key={m.id}
+                key={meeting.id}
                 className="card"
                 style={{
                   display: 'flex',
@@ -80,20 +80,20 @@ export default async function MeetingsPage() {
                   }}
                 >
                   <p style={{ margin: 0, fontFamily: 'var(--font-mono)', fontWeight: 800, fontSize: '1.3rem', color: 'var(--red)', lineHeight: 1 }}>
-                    {new Date(m.date).toLocaleDateString('en-US', { day: 'numeric', timeZone: 'UTC' })}
+                    {new Date(meeting.date).toLocaleDateString('en-US', { day: 'numeric', timeZone: 'UTC' })}
                   </p>
                   <p style={{ margin: '0.2rem 0 0', fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--muted)', fontWeight: 700, letterSpacing: '0.05em' }}>
-                    {new Date(m.date).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }).toUpperCase()}
+                    {new Date(meeting.date).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' }).toUpperCase()}
                   </p>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <p style={{ margin: '0 0 0.2rem', fontWeight: 800, fontSize: '1.05rem' }}>{m.title}</p>
+                  <p style={{ margin: '0 0 0.2rem', fontWeight: 800, fontSize: '1.05rem' }}>{meeting.title}</p>
                   <p style={{ margin: 0, color: 'var(--orange)', fontSize: '0.82rem', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
-                    {dateFmt.format(m.date)}
+                    {dateFmt.format(meeting.date)}
                   </p>
-                  {m.notes && (
+                  {meeting.notes && (
                     <p style={{ margin: '0.5rem 0 0', color: 'var(--muted)', fontSize: '0.88rem', lineHeight: 1.6 }}>
-                      {m.notes}
+                      {meeting.notes}
                     </p>
                   )}
                 </div>
@@ -117,28 +117,44 @@ export default async function MeetingsPage() {
               PAST
             </p>
             {[...byMonth.entries()].map(([month, meetings]) => (
-              <div key={month} className="stack" style={{ gap: '0.5rem' }}>
+              <div key={month} className="stack" style={{ gap: '0.75rem' }}>
                 <p style={{ margin: 0, color: 'var(--dim)', fontSize: '0.78rem', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
                   {month.toUpperCase()}
                 </p>
-                {meetings.map((m) => (
-                  <div
-                    key={m.id}
-                    className="card"
-                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', padding: '0.75rem 1.1rem' }}
-                  >
-                    <div>
-                      <p style={{ margin: '0 0 0.15rem', fontWeight: 700, fontSize: '0.95rem' }}>{m.title}</p>
-                      <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.78rem', fontFamily: 'var(--font-mono)' }}>
-                        {dateFmt.format(m.date)}
-                      </p>
+
+                {meetings.map((meeting) => (
+                  <article key={meeting.id} className="card stack" style={{ gap: '0.8rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+                      <div>
+                        <p style={{ margin: '0 0 0.15rem', fontWeight: 700, fontSize: '0.95rem' }}>{meeting.title}</p>
+                        <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.78rem', fontFamily: 'var(--font-mono)' }}>
+                          {dateFmt.format(meeting.date)}
+                        </p>
+                      </div>
                     </div>
-                    {m.notes && (
-                      <p style={{ margin: 0, color: 'var(--dim)', fontSize: '0.82rem', maxWidth: 400 }}>
-                        {m.notes}
+
+                    {meeting.summary ? (
+                      <div>
+                        <p style={{ margin: '0 0 0.35rem', color: 'var(--muted)', fontSize: '0.72rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.08em', fontWeight: 700 }}>
+                          SUMMARY
+                        </p>
+                        <MarkdownPreview source={meeting.summary} fallback="Summary coming soon." />
+                      </div>
+                    ) : (
+                      <p style={{ margin: 0, color: 'var(--dim)', fontSize: '0.82rem' }}>
+                        Summary coming soon.
                       </p>
                     )}
-                  </div>
+
+                    {meeting.materials && (
+                      <div>
+                        <p style={{ margin: '0 0 0.35rem', color: 'var(--muted)', fontSize: '0.72rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.08em', fontWeight: 700 }}>
+                          MATERIALS / LINKS
+                        </p>
+                        <MarkdownPreview source={meeting.materials} fallback="No materials posted." />
+                      </div>
+                    )}
+                  </article>
                 ))}
               </div>
             ))}

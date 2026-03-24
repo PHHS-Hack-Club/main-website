@@ -1,0 +1,2 @@
+things to add in the future:
+> add summary for each meeting of what happened and any materials, handouts, links or whatever given or gone over in the meeting. admins are emailed to fill out a summary at 5pm the day when a meeting happens
