@@ -686,10 +686,7 @@ select.field:focus {
   position: fixed;
   inset: 0;
   z-index: 9900;
-  /* own GPU layer — scroll never triggers a repaint of this overlay */
-  will-change: transform;
-  transform: translateZ(0);
-  contain: strict;
+  overflow: hidden;
 }
 
 .crt-scanlines {

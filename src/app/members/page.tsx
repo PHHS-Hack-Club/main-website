@@ -79,51 +79,6 @@ function MemberAvatar({
   )
 }
 
-function HeadshotStrip({
-  headshotUrl,
-  accent,
-  featured,
-}: {
-  headshotUrl: string | null
-  accent: { color: string }
-  featured: boolean
-}) {
-  const height = featured ? 148 : 96
-
-  return (
-    <div
-      style={{
-        position: 'relative',
-        height,
-        background: headshotUrl
-          ? `center / cover no-repeat url(${headshotUrl})`
-          : `radial-gradient(circle at 18% 26%, ${accent.color}20 0%, transparent 34%), linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%), var(--surface)`,
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-      }}
-    >
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background:
-            featured
-              ? 'linear-gradient(180deg, rgba(7,7,10,0.12) 0%, rgba(7,7,10,0.46) 52%, rgba(7,7,10,0.88) 100%)'
-              : 'linear-gradient(180deg, rgba(7,7,10,0.08) 0%, rgba(7,7,10,0.3) 48%, rgba(7,7,10,0.82) 100%)',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background:
-            `radial-gradient(circle at 12% 18%, ${accent.color}24 0%, transparent 30%), radial-gradient(circle at 88% 0%, rgba(255,255,255,0.1) 0%, transparent 24%)`,
-          mixBlendMode: 'screen',
-        }}
-      />
-    </div>
-  )
-}
-
 function MemberCard({
   member,
   featured = false,
@@ -137,17 +92,13 @@ function MemberCard({
   const profilePictureUrl = member.profilePictureKey
     ? getFileUrl(member.profilePictureKey)
     : null
-  const headshotUrl = member.headshotKey ? getFileUrl(member.headshotKey) : null
   const avatarSize = featured ? 86 : 64
 
   const content = (
     <>
-      <HeadshotStrip headshotUrl={headshotUrl} accent={rc} featured={featured} />
-
-      <div style={{ padding: featured ? '0 1.15rem 1.15rem' : '0 1rem 1rem' }}>
+      <div style={{ padding: featured ? '1.15rem' : '1rem' }}>
         <div
           style={{
-            marginTop: -(avatarSize / 2),
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'flex-start',
