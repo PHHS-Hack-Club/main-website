@@ -41,7 +41,7 @@ export default async function EventsPage() {
         {next && (
           <section className="stack">
             <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.12em', fontWeight: 700 }}>
-              // UPCOMING
+              {'// UPCOMING'}
             </p>
             <article
               className="card"
@@ -94,7 +94,7 @@ export default async function EventsPage() {
         {(rest.length > 0 || past.length > 0) && (
           <section className="stack">
             <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.12em', fontWeight: 700 }}>
-              // ALL EVENTS
+              {'// ALL EVENTS'}
             </p>
             <div className="stack">
               {[...rest, ...past].map((ev) => {

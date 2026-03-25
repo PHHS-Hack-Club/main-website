@@ -36,6 +36,7 @@ model Member {
   bio         String?
   role            Role     @default(MEMBER)
   profilePictureKey String?  @map("profile_picture_key")
+  headshotKey      String?  @map("headshot_key")
   hackatimeToken  String?  @map("hackatime_token")
   schoolEmail     String?  @map("school_email")
   websiteUrl      String?  @map("website_url")
@@ -185,4 +186,19 @@ model Announcement {
   updatedAt DateTime  @updatedAt @map("updated_at")
 
   @@map("announcements")
+}
+
+model Sponsor {
+  id          String   @id @default(cuid())
+  title       String
+  linkUrl     String   @map("link_url")
+  logoKey     String   @map("logo_key")
+  description String?
+  tier        String?
+  sortOrder   Int      @default(0) @map("sort_order")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("sponsors")
 }

@@ -6,7 +6,7 @@ services:
       - '5434:5432'
     environment:
       POSTGRES_USER: phhs
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: https://dash.cloudflare.com/domainconnect/v2/domainTemplates/providers/zoho.com/services/zmail_hosting/apply?redirect_uri=https%3A%2F%2Fmailadmin.zoho.com%2Fcpanel%2Fjsp%2FdomainConnectSyncResponse.jsp&groupId=zoho-mx%2Czoho-mx2%2Czoho-mx3%2Czoho-spf%2Czoho-dkim2&mx_points=mx.zoho.com&mx2_points=mx2.zoho.com&mx3_points=mx3.zoho.com&spf_data=include%3Azohomail.com&dkim_data2=v%3DDKIM1%3B+k%3Drsa%3B+p%3DMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCZCzlazgjDQtdZ4Xr8PWY5sO7tLOJvjY0c5pcQVgKcvoIy1UmXX5dUq9AunzQfgR9c4ZTdyltADCJ1gYNnkiA595E3hJ44xlsjTAwfRanSsWxKRHXxDe5ec1gGbSL2Ncvc%2BYJ1Emh9goEtumCCkoHNDwHziZokdzd9PlDCIIMe%2FQIDAQAB&dkim_host2=zmail&domain=phhshack.club&serviceName=Mail&sig=RbpCmcmSyzHRyMhbUPvokCVbHBeDFLbRa3XNeiVbPSCcCiLSFgGEaHVhoWO%2Fz0FcXlWInGUUCuRm5mTybJSjEp68N%2Bn0T7ggSe%2Fe%2F2KD%2FiFA6UXTzw4qUumWKRcG7Vqk%2BfdNOtW4mTQwJtSipj2GO0gdOfH8iW8c49zZa7QsUsw%3D&key=_dcpubkeyv1https://dash.cloudflare.com/domainconnect/v2/domainTemplates/providers/zoho.com/services/zmail_hosting/apply?redirect_uri=https%3A%2F%2Fmailadmin.zoho.com%2Fcpanel%2Fjsp%2FdomainConnectSyncResponse.jsp&groupId=zoho-mx%2Czoho-mx2%2Czoho-mx3&mx_points=mx.zoho.com&mx2_points=mx2.zoho.com&mx3_points=mx3.zoho.com&domain=phhshack.club&serviceName=Mail&sig=WUXsl8caZqxCxZqA%2BKpPPDi6%2B8L8zBeBy4rRmkXpEkX%2F9KWBk8FlBGUxrmTgSeEgXTHnx5RsJF%2FwZ9n7uI9xnk9%2FGv%2BIbWTnUtWWPtbBbGw2TKZHsWqehY7bxYDNS%2B7ReH%2B6Xev5dxy1xqg7L1qfHHGEW2oZg6y7mufCRZZWjyA%3D&key=_dcpubkeyv1
       POSTGRES_DB: phhs_hack_club
     volumes:
       - pgdata:/var/lib/postgresql/data

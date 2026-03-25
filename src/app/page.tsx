@@ -9,11 +9,11 @@ const highlights = [
   },
   {
     title: 'Real Perks (YSWS)',
-    body: 'Ship a qualifying project and Hack Club HQ will mail you hardware grants Raspberry Pis, Sprig consoles, custom domains, and more.',
+    body: 'Ship a qualifying project and Hack Club HQ will give you grants such as Raspberry Pis, Sprig consoles, custom domains, cloud hosting credits, and more.',
   },
   {
     title: 'Student-Led, Always',
-    body: "No grades, no tests. By students, for students. We're part of a global network of 4,000+ Hack Clubs with a local PHHS crew running it.",
+    body: "No grades, no tests. By students, for students. We're part of a global network of 4,000+ Hack Clubs.",
   },
 ]
 
@@ -27,8 +27,8 @@ const semesterPlan = [
 const meetingDetails = [
   { k: 'Day', v: 'Every Thursday' },
   { k: 'Time', v: '3:00 - 4:00 PM' },
-  { k: 'Location', v: 'Room 255 · Pascack Hills HS' },
-  { k: 'Open to', v: 'All PHHS students - any grade, any skill level' },
+  { k: 'Location', v: 'Room 255 · Pascack Hills High School' },
+  { k: 'Open to', v: 'All Pascack Hills High School students - any grade, any skill level' },
 ]
 
 export default async function HomePage({

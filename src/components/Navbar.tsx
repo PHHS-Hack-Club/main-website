@@ -28,6 +28,7 @@ const navItems: NavItem[] = [
       { href: '/contact', label: 'Contact', desc: 'Get in touch' },
     ],
   },
+  { href: '/sponsors', label: 'Sponsors' },
 ]
 
 function NavDropdownItem({
@@ -154,28 +155,23 @@ export default function Navbar({ authButton }: { authButton: ReactNode }) {
           paddingTop: '0.875rem',
           paddingBottom: '0.875rem',
           gap: '1rem',
+          minWidth: 0,
         }}
       >
         <Link
           href="/"
           onClick={() => setMobileOpen(false)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.65rem',
-            color: 'var(--text)',
-            fontWeight: 'bold',
-            fontSize: '1rem',
-            textDecoration: 'none',
-            letterSpacing: '0.03em',
-          }}
+          className="nav-brand"
         >
           <img
             src="/logos/phhs-hack-club-logo-trans.png"
             alt="PHHS Hack Club"
-            style={{ width: 38, height: 38, objectFit: 'contain' }}
+            className="nav-brand-logo"
           />
-          <span>PHHS<span style={{ color: 'var(--red)', marginLeft: '0.3em' }}>Hack Club</span></span>
+          <span className="nav-brand-text">
+            <span className="nav-brand-name">PHHS</span>
+            <span className="nav-brand-accent">Hack Club</span>
+          </span>
         </Link>
 
         <button

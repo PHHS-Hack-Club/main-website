@@ -38,7 +38,7 @@ export default function ContactPage() {
 
   return (
     <div className="container" style={{ paddingTop: 'var(--space-5)', paddingBottom: 'var(--space-5)' }}>
-      <div className="card stack" style={{ maxWidth: 720 }}>
+      <div className="card stack" style={{ maxWidth: 720, width: '100%', margin: '0 auto' }}>
         <div>
           <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', marginBottom: '0.75rem' }}>Contact</h1>
           <p style={{ color: 'var(--muted)', maxWidth: 620 }}>

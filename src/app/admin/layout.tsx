@@ -32,6 +32,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <p style={{ margin: '0.25rem 0 0', fontSize: '0.65rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em', fontWeight: 700, color: 'var(--dim)' }}>CLUB</p>
           <Link href="/admin/meetings">Meetings</Link>
           <Link href="/admin/events">Events</Link>
+          <Link href="/admin/sponsors">Sponsors</Link>
           <Link href="/admin/attendance">Attendance</Link>
           <Link href="/admin/email">Email</Link>
 

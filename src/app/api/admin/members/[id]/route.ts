@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession, isAdmin } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { deleteFile } from '@/lib/minio'
 import {
   isUsernameTaken,
   normalizeUsername,
@@ -56,9 +57,57 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
     return NextResponse.json({ error: 'You cannot delete your own account' }, { status: 400 })
   }
 
+  const member = await prisma.member.findUnique({
+    where: { id },
+    select: {
+      profilePictureKey: true,
+      headshotKey: true,
+      projects: {
+        select: {
+          images: {
+            select: { minioKey: true },
+          },
+        },
+      },
+      devlogs: {
+        select: {
+          images: {
+            select: { minioKey: true },
+          },
+        },
+      },
+    },
+  })
+
+  if (!member) {
+    return NextResponse.json({ error: 'Member not found' }, { status: 404 })
+  }
+
+  const minioKeys = new Set<string>()
+  if (member.profilePictureKey) {
+    minioKeys.add(member.profilePictureKey)
+  }
+  if (member.headshotKey) {
+    minioKeys.add(member.headshotKey)
+  }
+
+  for (const project of member.projects) {
+    for (const image of project.images) {
+      minioKeys.add(image.minioKey)
+    }
+  }
+
+  for (const devlog of member.devlogs) {
+    for (const image of devlog.images) {
+      minioKeys.add(image.minioKey)
+    }
+  }
+
   await prisma.member.delete({
     where: { id },
   })
+
+  await Promise.all([...minioKeys].map((key) => deleteFile(key)))
 
   return NextResponse.json({ success: true })
 }

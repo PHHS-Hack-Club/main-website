@@ -33,14 +33,14 @@ export default async function AttendancePage() {
 
       <section className="stack">
         <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.08em', fontWeight: 700 }}>
-          // TAKE ATTENDANCE
+          {'// TAKE ATTENDANCE'}
         </p>
         <AttendanceTracker meetings={meetingChips} />
       </section>
 
       <section className="stack">
         <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.08em', fontWeight: 700 }}>
-          // HISTORY
+          {'// HISTORY'}
         </p>
         <AttendanceViewer />
       </section>

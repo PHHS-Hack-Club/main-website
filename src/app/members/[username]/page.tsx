@@ -4,7 +4,6 @@ import { notFound } from 'next/navigation'
 import MarkdownPreview from '@/components/MarkdownPreview'
 import ProfileEditor from '@/components/ProfileEditor'
 import { getSession } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
 import { getFileUrl } from '@/lib/minio'
 import {
   fetchTotalSeconds,
@@ -13,6 +12,7 @@ import {
   roleColor,
   roleLabel,
 } from '@/lib/member-display'
+import { prisma } from '@/lib/prisma'
 
 const joinedDateFormatter = new Intl.DateTimeFormat('en-US', {
   month: 'long',
@@ -23,6 +23,107 @@ function previewText(value: string, maxLength: number): string {
   const normalized = value.trim()
   if (normalized.length <= maxLength) return normalized
   return `${normalized.slice(0, maxLength).trimEnd()}...`
+}
+
+function MemberAvatar({
+  name,
+  profilePictureUrl,
+  size,
+  borderColor = 'rgba(255,255,255,0.14)',
+}: {
+  name: string
+  profilePictureUrl: string | null
+  size: number
+  borderColor?: string
+}) {
+  if (profilePictureUrl) {
+    return (
+      <img
+        src={profilePictureUrl}
+        alt={`${name}'s profile picture`}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: '50%',
+          objectFit: 'cover',
+          border: `1px solid ${borderColor}`,
+          boxShadow: '0 18px 40px rgba(0, 0, 0, 0.24)',
+          background: 'var(--raised)',
+        }}
+      />
+    )
+  }
+
+  return (
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: '50%',
+        display: 'grid',
+        placeItems: 'center',
+        fontSize: size >= 96 ? '1.35rem' : '1rem',
+        fontWeight: 800,
+        color: 'var(--dim)',
+        fontFamily: 'var(--font-mono)',
+        border: `1px solid ${borderColor}`,
+        boxShadow: '0 18px 40px rgba(0, 0, 0, 0.24)',
+        background:
+          'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%), var(--raised)',
+      }}
+    >
+      {getMemberInitials(name)}
+    </div>
+  )
+}
+
+function HeroBackdrop({
+  headshotUrl,
+  accent,
+}: {
+  headshotUrl: string | null
+  accent: { color: string }
+}) {
+  return (
+    <div
+      style={{
+        position: 'relative',
+        minHeight: 260,
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        background: headshotUrl
+          ? `center / cover no-repeat url(${headshotUrl})`
+          : `radial-gradient(circle at 18% 24%, ${accent.color}1f 0%, transparent 36%), linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%), var(--surface)`,
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background:
+            'linear-gradient(180deg, rgba(8,8,12,0.12) 0%, rgba(8,8,12,0.42) 42%, rgba(8,8,12,0.92) 100%)',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background:
+            `radial-gradient(circle at 16% 22%, ${accent.color}28 0%, transparent 32%), radial-gradient(circle at 82% 12%, rgba(255,255,255,0.12) 0%, transparent 22%)`,
+          mixBlendMode: 'screen',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          insetInline: 0,
+          bottom: 0,
+          height: 120,
+          background:
+            'linear-gradient(180deg, rgba(8,8,12,0) 0%, rgba(8,8,12,0.92) 100%)',
+        }}
+      />
+    </div>
+  )
 }
 
 export async function generateMetadata({
@@ -39,6 +140,7 @@ export async function generateMetadata({
       username: true,
       headline: true,
       bio: true,
+      headshotKey: true,
       projects: {
         where: { status: 'APPROVED' },
         orderBy: { createdAt: 'desc' },
@@ -59,10 +161,16 @@ export async function generateMetadata({
 
   const latestProject = member.projects[0]
   const title = `${member.name} · PHHS Hack Club`
-  const description = (member.bio || member.headline || (latestProject?.title
-    ? `${member.name}'s projects and devlogs at PHHS Hack Club, including ${latestProject.title}.`
-    : `${member.name}'s member page at PHHS Hack Club.`)).slice(0, 160)
-  const image = latestProject?.images[0] ? getFileUrl(latestProject.images[0].minioKey) : undefined
+  const description = (member.bio ||
+    member.headline ||
+    (latestProject?.title
+      ? `${member.name}'s projects and devlogs at PHHS Hack Club, including ${latestProject.title}.`
+      : `${member.name}'s member page at PHHS Hack Club.`)).slice(0, 160)
+  const image = latestProject?.images[0]
+    ? getFileUrl(latestProject.images[0].minioKey)
+    : member.headshotKey
+      ? getFileUrl(member.headshotKey)
+      : undefined
 
   return {
     title,
@@ -99,6 +207,7 @@ export default async function MemberPage({
       bio: true,
       role: true,
       profilePictureKey: true,
+      headshotKey: true,
       hackatimeToken: true,
       websiteUrl: true,
       githubUrl: true,
@@ -152,6 +261,10 @@ export default async function MemberPage({
     ? await fetchTotalSeconds(member.hackatimeToken)
     : 0
   const rc = roleColor[member.role]
+  const profilePictureUrl = member.profilePictureKey
+    ? getFileUrl(member.profilePictureKey)
+    : null
+  const headshotUrl = member.headshotKey ? getFileUrl(member.headshotKey) : null
 
   return (
     <div
@@ -176,62 +289,39 @@ export default async function MemberPage({
         <section
           className='card animate-up'
           style={{
+            padding: 0,
+            overflow: 'hidden',
             background:
-              'radial-gradient(ellipse 80% 60% at 10% 50%, rgba(236, 55, 80, 0.06) 0%, var(--surface) 60%)',
+              'linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0) 100%), var(--surface)',
           }}
-          >
+        >
+          <HeroBackdrop headshotUrl={headshotUrl} accent={rc} />
+
+          <div style={{ padding: '0 var(--space-4) var(--space-4)' }}>
             <div
               style={{
+                marginTop: -64,
                 display: 'flex',
                 justifyContent: 'space-between',
+                alignItems: 'flex-end',
                 gap: '1rem',
-                alignItems: 'flex-start',
                 flexWrap: 'wrap',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                {member.profilePictureKey ? (
-                  <img
-                    src={getFileUrl(member.profilePictureKey)}
-                    alt={`${member.name}'s profile picture`}
-                    style={{
-                      width: 72,
-                      height: 72,
-                      borderRadius: '50%',
-                      objectFit: 'cover',
-                      flexShrink: 0,
-                      border: '1px solid var(--border)',
-                    }}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      width: 72,
-                      height: 72,
-                      borderRadius: '50%',
-                      background: 'var(--raised)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      fontSize: '1rem',
-                      fontWeight: 800,
-                      color: 'var(--dim)',
-                      fontFamily: 'var(--font-mono)',
-                      border: '1px solid var(--border)',
-                    }}
-                  >
-                    {getMemberInitials(member.name)}
-                  </div>
-                )}
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1rem', flexWrap: 'wrap' }}>
+                <MemberAvatar
+                  name={member.name}
+                  profilePictureUrl={profilePictureUrl}
+                  size={128}
+                />
 
-                <div>
+                <div style={{ paddingBottom: '0.35rem' }}>
                   <p
                     style={{
-                      margin: '0 0 0.35rem',
-                      color: 'var(--muted)',
+                      margin: '0 0 0.45rem',
+                      color: 'rgba(255,255,255,0.72)',
                       fontSize: '0.7rem',
-                      letterSpacing: '0.12em',
+                      letterSpacing: '0.14em',
                       fontWeight: 700,
                       fontFamily: 'var(--font-mono)',
                     }}
@@ -242,42 +332,31 @@ export default async function MemberPage({
                     className='glow-red'
                     style={{
                       marginBottom: '0.35rem',
-                      letterSpacing: '-0.02em',
-                      fontSize: 'clamp(2.25rem, 4vw, 3.5rem)',
+                      letterSpacing: '-0.03em',
+                      fontSize: 'clamp(2.3rem, 4vw, 3.8rem)',
                     }}
                   >
                     {member.name}
                   </h1>
-                <p
-                  style={{
-                    margin: 0,
-                    color: 'var(--muted)',
-                    fontSize: '0.9rem',
-                  }}
-                >
+                  <p
+                    style={{
+                      margin: 0,
+                      color: 'var(--muted)',
+                      fontSize: '0.92rem',
+                    }}
+                  >
                     {`Joined ${joinedDateFormatter.format(member.createdAt)} · ${member.username}`}
-                </p>
-                  {member.headline && (
-                    <p
-                      style={{
-                        margin: '0.6rem 0 0',
-                        color: 'var(--text)',
-                        fontSize: '1rem',
-                        maxWidth: 640,
-                      }}
-                    >
-                      {member.headline}
-                    </p>
-                  )}
+                  </p>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '0.7rem', alignItems: 'center', flexWrap: 'wrap' }}>
                 {isOwner && (
                   <ProfileEditor
                     mode='modal'
                     name={member.name}
-                    currentImageUrl={member.profilePictureKey ? getFileUrl(member.profilePictureKey) : null}
+                    currentImageUrl={profilePictureUrl}
+                    currentHeadshotUrl={headshotUrl}
                     triggerLabel='Edit'
                     triggerClassName='btn-ghost'
                     initialValues={{
@@ -288,10 +367,11 @@ export default async function MemberPage({
                     }}
                   />
                 )}
+
                 <span
                   style={{
                     display: 'inline-flex',
-                    padding: '0.3rem 0.75rem',
+                    padding: '0.34rem 0.8rem',
                     borderRadius: 'var(--radius-pill)',
                     fontSize: '0.75rem',
                     fontWeight: 800,
@@ -308,72 +388,45 @@ export default async function MemberPage({
               </div>
             </div>
 
-          <div
-            style={{
-              display: 'flex',
-              gap: '1.5rem',
-              flexWrap: 'wrap',
-              marginTop: '1.5rem',
-            }}
-          >
-            <div>
+            {member.headline && (
               <p
                 style={{
-                  margin: '0 0 0.2rem',
-                  fontWeight: 800,
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '1.2rem',
+                  margin: '1rem 0 0',
+                  maxWidth: 760,
+                  color: 'rgba(255,255,255,0.88)',
+                  fontSize: '1rem',
+                  lineHeight: 1.7,
                 }}
               >
-                {member._count.projects}
+                {member.headline}
               </p>
-              <p
-                style={{
-                  margin: 0,
-                  color: 'var(--dim)',
-                  fontSize: '0.75rem',
-                  fontFamily: 'var(--font-mono)',
-                }}
-              >
-                approved projects
-              </p>
-            </div>
+            )}
 
-            <div>
-              <p
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                gap: '0.8rem',
+                marginTop: '1.4rem',
+              }}
+            >
+              <div
+                className='surface'
                 style={{
-                  margin: '0 0 0.2rem',
-                  fontWeight: 800,
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '1.2rem',
+                  padding: '0.95rem 1rem',
+                  background: 'rgba(255,255,255,0.03)',
+                  borderColor: 'rgba(255,255,255,0.08)',
                 }}
               >
-                {member._count.devlogs}
-              </p>
-              <p
-                style={{
-                  margin: 0,
-                  color: 'var(--dim)',
-                  fontSize: '0.75rem',
-                  fontFamily: 'var(--font-mono)',
-                }}
-              >
-                approved devlogs
-              </p>
-            </div>
-
-            {totalSeconds > 0 && (
-              <div>
                 <p
                   style={{
-                    margin: '0 0 0.2rem',
-                    color: 'var(--orange)',
+                    margin: '0 0 0.18rem',
                     fontWeight: 800,
                     fontFamily: 'var(--font-mono)',
                     fontSize: '1.2rem',
                   }}
                 >
-                  {formatSeconds(totalSeconds)}
+                  {member._count.projects}
                 </p>
                 <p
                   style={{
@@ -383,10 +436,73 @@ export default async function MemberPage({
                     fontFamily: 'var(--font-mono)',
                   }}
                 >
-                  logged in Hackatime
+                  approved projects
                 </p>
               </div>
-            )}
+
+              <div
+                className='surface'
+                style={{
+                  padding: '0.95rem 1rem',
+                  background: 'rgba(255,255,255,0.03)',
+                  borderColor: 'rgba(255,255,255,0.08)',
+                }}
+              >
+                <p
+                  style={{
+                    margin: '0 0 0.18rem',
+                    fontWeight: 800,
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '1.2rem',
+                  }}
+                >
+                  {member._count.devlogs}
+                </p>
+                <p
+                  style={{
+                    margin: 0,
+                    color: 'var(--dim)',
+                    fontSize: '0.75rem',
+                    fontFamily: 'var(--font-mono)',
+                  }}
+                >
+                  approved devlogs
+                </p>
+              </div>
+
+              {totalSeconds > 0 && (
+                <div
+                  className='surface'
+                  style={{
+                    padding: '0.95rem 1rem',
+                    background: 'rgba(255,255,255,0.03)',
+                    borderColor: 'rgba(255,255,255,0.08)',
+                  }}
+                >
+                  <p
+                    style={{
+                      margin: '0 0 0.18rem',
+                      color: 'var(--orange)',
+                      fontWeight: 800,
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '1.2rem',
+                    }}
+                  >
+                    {formatSeconds(totalSeconds)}
+                  </p>
+                  <p
+                    style={{
+                      margin: 0,
+                      color: 'var(--dim)',
+                      fontSize: '0.75rem',
+                      fontFamily: 'var(--font-mono)',
+                    }}
+                  >
+                    logged in Hackatime
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </section>
 
@@ -415,13 +531,18 @@ export default async function MemberPage({
                   {'// ABOUT'}
                 </p>
                 {member.bio ? (
-                  <p style={{ margin: 0, color: 'var(--muted)', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      color: 'var(--muted)',
+                      lineHeight: 1.8,
+                      whiteSpace: 'pre-wrap',
+                    }}
+                  >
                     {member.bio}
                   </p>
                 ) : (
-                  <p style={{ margin: 0, color: 'var(--muted)' }}>
-                    No bio added yet.
-                  </p>
+                  <p style={{ margin: 0, color: 'var(--muted)' }}>No bio added yet.</p>
                 )}
               </div>
 

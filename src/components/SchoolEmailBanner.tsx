@@ -40,11 +40,11 @@ export default function SchoolEmailBanner() {
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: 240 }}>
           <p style={{ margin: '0 0 0.25rem', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.12em', color: 'var(--red)', fontFamily: 'var(--font-mono)' }}>
-            // ONE MORE THING
+            {'// ONE MORE THING'}
           </p>
           <p style={{ margin: '0 0 0.25rem', fontWeight: 700, fontSize: '1rem' }}>Add your school email</p>
           <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.875rem' }}>
-            Get club announcements sent directly to your Pascack email.
+            Get club announcements sent directly to your Pascack Hills High School email.
           </p>
         </div>
         <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'flex-start', flex: 1, minWidth: 260 }}>

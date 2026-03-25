@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import ProfileHeadshotUpload from '@/components/ProfileHeadshotUpload'
 import ProfilePictureUpload from '@/components/ProfilePictureUpload'
 
 type ProfileValues = {
@@ -20,6 +21,7 @@ export default function ProfileEditor({
   mode = 'inline',
   name,
   currentImageUrl = null,
+  currentHeadshotUrl = null,
   triggerLabel = 'Edit',
   triggerClassName = 'btn-outline',
 }: {
@@ -27,6 +29,7 @@ export default function ProfileEditor({
   mode?: 'inline' | 'modal'
   name?: string
   currentImageUrl?: string | null
+  currentHeadshotUrl?: string | null
   triggerLabel?: string
   triggerClassName?: string
 }) {
@@ -103,21 +106,39 @@ export default function ProfileEditor({
     <form onSubmit={handleSubmit} className='stack' style={{ gap: '1rem' }}>
       {name && (
         <div
-          className='surface'
           style={{
-            padding: '1rem',
-            display: 'flex',
-            alignItems: 'center',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
             gap: '1rem',
-            flexWrap: 'wrap',
           }}
         >
-          <ProfilePictureUpload currentUrl={currentImageUrl} name={name} />
-          <div style={{ maxWidth: 360 }}>
-            <p style={{ margin: '0 0 0.2rem', fontWeight: 700 }}>Profile picture</p>
-            <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.9rem' }}>
-              Update the avatar shown on your member page.
-            </p>
+          <div
+            className='surface'
+            style={{
+              padding: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem',
+              flexWrap: 'wrap',
+            }}
+          >
+            <ProfilePictureUpload currentUrl={currentImageUrl} name={name} />
+            <div style={{ maxWidth: 360 }}>
+              <p style={{ margin: '0 0 0.2rem', fontWeight: 700 }}>Profile picture</p>
+              <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.9rem' }}>
+                Small circular avatar shown across the site.
+              </p>
+            </div>
+          </div>
+
+          <div className='surface stack' style={{ padding: '1rem', gap: '0.8rem' }}>
+            <div>
+              <p style={{ margin: '0 0 0.2rem', fontWeight: 700 }}>Headshot backdrop</p>
+              <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.9rem' }}>
+                Wide photo used behind your profile icon on member pages and team cards.
+              </p>
+            </div>
+            <ProfileHeadshotUpload currentUrl={currentHeadshotUrl} name={name} />
           </div>
         </div>
       )}

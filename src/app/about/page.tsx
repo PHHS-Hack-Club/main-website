@@ -10,7 +10,7 @@ const whatWeBuild = [
 ]
 
 const steps = [
-  { num: '01', title: 'Get a Hack Club account', desc: 'Be a Pascack Hills Student, then sign up at hackclub.com it\'s free and connects you to a global community of student hackers.' },
+  { num: '01', title: 'Get a Hack Club account', desc: 'Be a Pascack Hills High School student, then sign up at hackclub.com. It\'s free and connects you to a global community of student hackers.' },
   { num: '02', title: 'Come to a meeting', desc: 'Show up on a meeting day ready to build something.' },
   { num: '03', title: 'Come to a meeting', desc: 'Attend regularly to learn more skills through our weekly workshops.' },
   { num: '04', title: 'Start a project', desc: 'Pick something you actually want to make. We help you scope it, start it, and ship it.' },
@@ -42,7 +42,7 @@ export default function AboutPage() {
           <p style={{ margin: '0 0 0.5rem', color: 'var(--red)', fontWeight: 800, letterSpacing: '0.12em', fontSize: '0.72rem', fontFamily: 'var(--font-mono)' }}>{'// ABOUT THE CLUB'}</p>
           <h1 className="glow-red" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', margin: '0 0 1rem', letterSpacing: '-0.02em' }}>A room full of builders.</h1>
           <p style={{ color: 'var(--muted)', maxWidth: 680, lineHeight: 1.8, margin: 0, fontSize: '1rem' }}>
-            PHHS Hack Club is the Pascack Hills chapter of the global{' '}
+            PHHS Hack Club is the Pascack Hills High School chapter of the global{' '}
             <a href="https://hackclub.com" target="_blank" rel="noreferrer" style={{ color: 'var(--orange)' }}>Hack Club</a>{' '}
             network. We&apos;re a student-run club for people who want to make real things
             websites, games, hardware experiments, bots, 3D-printed objects, art, and whatever else.
@@ -114,8 +114,8 @@ export default function AboutPage() {
               {[
                 { k: 'Day', v: 'Every Thursday' },
                 { k: 'Time', v: '3:00 – 4:00 PM' },
-                { k: 'Location', v: 'Room 255 · Pascack Hills HS' },
-                { k: 'Open to', v: 'All PHHS students - any grade, any skill level' },
+                { k: 'Location', v: 'Room 255 · Pascack Hills High School' },
+                { k: 'Open to', v: 'All Pascack Hills High School students - any grade, any skill level' },
               ].map(({ k, v }) => (
                 <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.65rem' }}>
                   <span style={{ color: 'var(--dim)', fontSize: '0.8rem', fontFamily: 'var(--font-mono)', minWidth: 80 }}>{k}</span>
