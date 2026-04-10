@@ -7,7 +7,8 @@
     "build": "next build && pm2 restart phhs-site",
     "start": "next start -p 3007",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "smtp:test": "node scripts/test-smtp.mjs"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",
