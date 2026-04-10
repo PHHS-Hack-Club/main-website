@@ -235,6 +235,210 @@ export async function sendMeetingSummaryReminder({
   })
 }
 
+const dateFmt = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long',
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+  timeZone: 'America/New_York',
+})
+
+export async function sendMailRequestSubmittedToAdmins({
+  memberName,
+  localPart,
+  domain,
+  adminUrl,
+}: {
+  memberName: string
+  localPart: string
+  domain: string
+  adminUrl: string
+}) {
+  if (!process.env.SMTP_HOST || !process.env.ADMIN_EMAIL) return
+
+  const fullAddress = `${localPart}@${domain}`
+  console.log(`[email] mail request submitted by ${memberName} for ${fullAddress}`)
+  await createTransporter().sendMail({
+    from: senderAddress(),
+    to: process.env.ADMIN_EMAIL,
+    subject: `Mail Request: ${memberName} → ${fullAddress}`,
+    text: `${memberName} has requested a club email address: ${fullAddress}.\n\nReview it here: ${adminUrl}`,
+    html: emailTemplate({
+      preheader: `${memberName} wants a club email address`,
+      badge: 'Mail Request',
+      heading: `${memberName} requested an email`,
+      body: `<p style="margin:0 0 12px;"><strong style="color:#ffffff;">${memberName}</strong> has requested the following club email address:</p><p style="margin:0;"><span style="font-family:monospace;font-size:14px;background:#12121a;border:1px solid #2a2a38;border-radius:4px;padding:4px 10px;color:#ec3750;">${fullAddress}</span></p>`,
+      ctaLabel: 'Review request',
+      ctaUrl: adminUrl,
+    }),
+  })
+}
+
+export async function sendMailRequestApprovedToMember({
+  memberEmail,
+  memberName,
+  fullAddress,
+  setupUrl,
+}: {
+  memberEmail: string
+  memberName: string
+  fullAddress: string
+  setupUrl: string
+}) {
+  if (!process.env.SMTP_HOST) return
+
+  console.log(`[email] mail request approved for ${memberName} (${fullAddress})`)
+  await createTransporter().sendMail({
+    from: senderAddress(),
+    to: memberEmail,
+    subject: `Your club email is ready: ${fullAddress}`,
+    text: `Great news, ${memberName}! Your club email address ${fullAddress} has been approved.\n\nSet your password here (link expires in 24 hours):\n${setupUrl}`,
+    html: emailTemplate({
+      preheader: `Your club email ${fullAddress} is approved — set your password`,
+      badge: 'Email Approved',
+      heading: 'Your club email is ready!',
+      body: `<p style="margin:0 0 12px;">Hi <strong style="color:#ffffff;">${memberName}</strong>! Your request for a PHHS Hack Club email address has been approved.</p><p style="margin:0 0 12px;">Your address: <span style="font-family:monospace;font-size:14px;background:#12121a;border:1px solid #2a2a38;border-radius:4px;padding:4px 10px;color:#ec3750;">${fullAddress}</span></p><p style="margin:0;color:#6a6a7a;font-size:13px;">The setup link expires in 24 hours.</p>`,
+      ctaLabel: 'Set your password',
+      ctaUrl: setupUrl,
+    }),
+  })
+}
+
+export async function sendMailRequestRejectedToMember({
+  memberEmail,
+  memberName,
+  localPart,
+  reason,
+}: {
+  memberEmail: string
+  memberName: string
+  localPart: string
+  reason?: string
+}) {
+  if (!process.env.SMTP_HOST) return
+
+  const siteUrl = process.env.NEXT_PUBLIC_URL || 'https://phhshack.club'
+  const reasonHtml = reason
+    ? `<p style="margin:0 0 12px;"><strong style="color:#ffffff;">Reason:</strong> ${reason}</p>`
+    : ''
+
+  console.log(`[email] mail request rejected for ${memberName} (${localPart})`)
+  await createTransporter().sendMail({
+    from: senderAddress(),
+    to: memberEmail,
+    subject: `Club email request not approved`,
+    text: `Hi ${memberName}, your request for ${localPart}@phhshack.club was not approved.${reason ? `\n\nReason: ${reason}` : ''}\n\nYou can submit a new request from your portal: ${siteUrl}/portal/mail`,
+    html: emailTemplate({
+      preheader: 'Your club email request was not approved',
+      badge: 'Request Not Approved',
+      heading: 'Email request not approved',
+      body: `<p style="margin:0 0 12px;">Hi <strong style="color:#ffffff;">${memberName}</strong>, your request for <span style="font-family:monospace;color:#a0a0b8;">${localPart}@phhshack.club</span> was not approved at this time.</p>${reasonHtml}<p style="margin:0;">You can submit a new request from your portal if you'd like to try a different address.</p>`,
+      ctaLabel: 'Submit new request',
+      ctaUrl: `${siteUrl}/portal/mail`,
+    }),
+  })
+}
+
+export async function sendMailPasswordChangedToMember({
+  memberEmail,
+  memberName,
+  fullAddress,
+}: {
+  memberEmail: string
+  memberName: string
+  fullAddress: string
+}) {
+  if (!process.env.SMTP_HOST) return
+
+  const siteUrl = process.env.NEXT_PUBLIC_URL || 'https://phhshack.club'
+  console.log(`[email] password changed notification for ${memberName} (${fullAddress})`)
+  await createTransporter().sendMail({
+    from: senderAddress(),
+    to: memberEmail,
+    subject: `Password changed for ${fullAddress}`,
+    text: `Hi ${memberName}, the password for your club email ${fullAddress} was just changed.\n\nIf you didn't do this, contact an admin immediately: ${siteUrl}/contact`,
+    html: emailTemplate({
+      preheader: `Password changed for ${fullAddress}`,
+      badge: 'Security Notice',
+      heading: 'Your password was changed',
+      body: `<p style="margin:0 0 12px;">Hi <strong style="color:#ffffff;">${memberName}</strong>, the password for <span style="font-family:monospace;color:#ec3750;">${fullAddress}</span> was just changed.</p><p style="margin:0;">If you didn't make this change, contact a club admin immediately.</p>`,
+      ctaLabel: 'Contact admin',
+      ctaUrl: `${siteUrl}/contact`,
+    }),
+  })
+}
+
+export async function sendMailSuspendedToMember({
+  memberEmail,
+  memberName,
+  fullAddress,
+  reason,
+}: {
+  memberEmail: string
+  memberName: string
+  fullAddress: string
+  reason?: string
+}) {
+  if (!process.env.SMTP_HOST) return
+
+  const siteUrl = process.env.NEXT_PUBLIC_URL || 'https://phhshack.club'
+  const reasonHtml = reason
+    ? `<p style="margin:0 0 12px;"><strong style="color:#ffffff;">Reason:</strong> ${reason}</p>`
+    : ''
+
+  console.log(`[email] mailbox suspended for ${memberName} (${fullAddress})`)
+  await createTransporter().sendMail({
+    from: senderAddress(),
+    to: memberEmail,
+    subject: `Your club email has been suspended`,
+    text: `Hi ${memberName}, your club email address ${fullAddress} has been suspended.${reason ? `\n\nReason: ${reason}` : ''}\n\nContact a club admin if you think this is a mistake: ${siteUrl}/contact`,
+    html: emailTemplate({
+      preheader: `${fullAddress} has been suspended`,
+      badge: 'Account Suspended',
+      heading: 'Your club email is suspended',
+      body: `<p style="margin:0 0 12px;">Hi <strong style="color:#ffffff;">${memberName}</strong>, access to <span style="font-family:monospace;color:#ec3750;">${fullAddress}</span> has been suspended.</p>${reasonHtml}<p style="margin:0;">If you believe this is a mistake, reach out to a club admin.</p>`,
+      ctaLabel: 'Contact admin',
+      ctaUrl: `${siteUrl}/contact`,
+    }),
+  })
+}
+
+export async function sendMailDeletionWarningToMember({
+  memberEmail,
+  memberName,
+  fullAddress,
+  deleteAfter,
+  daysRemaining,
+}: {
+  memberEmail: string
+  memberName: string
+  fullAddress: string
+  deleteAfter: Date
+  daysRemaining: number
+}) {
+  if (!process.env.SMTP_HOST) return
+
+  const siteUrl = process.env.NEXT_PUBLIC_URL || 'https://phhshack.club'
+  const deleteDate = dateFmt.format(deleteAfter)
+  const urgency = daysRemaining <= 7 ? 'Urgent: ' : ''
+
+  console.log(`[email] deletion warning (${daysRemaining}d) for ${memberName} (${fullAddress})`)
+  await createTransporter().sendMail({
+    from: senderAddress(),
+    to: memberEmail,
+    subject: `${urgency}Your club email will be deleted in ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''}`,
+    text: `Hi ${memberName}, your club email ${fullAddress} is scheduled for deletion on ${deleteDate} (${daysRemaining} days from now).\n\nAll emails in the mailbox will be permanently deleted. Contact a club admin to dispute this: ${siteUrl}/contact`,
+    html: emailTemplate({
+      preheader: `${fullAddress} will be deleted on ${deleteDate}`,
+      badge: daysRemaining <= 7 ? 'Urgent Notice' : 'Deletion Warning',
+      heading: `Mailbox deletion in ${daysRemaining} day${daysRemaining !== 1 ? 's' : ''}`,
+      body: `<p style="margin:0 0 12px;">Hi <strong style="color:#ffffff;">${memberName}</strong>, your club email <span style="font-family:monospace;color:#ec3750;">${fullAddress}</span> is scheduled to be permanently deleted.</p><p style="margin:0 0 12px;"><strong style="color:#ffffff;">Deletion date:</strong> <span style="font-family:monospace;font-size:13px;background:#12121a;border:1px solid #2a2a38;border-radius:4px;padding:3px 8px;color:#a0a0b8;">${deleteDate}</span></p><p style="margin:0;">All emails will be permanently deleted. If you think this is a mistake, contact a club admin immediately.</p>`,
+      ctaLabel: 'Contact admin',
+      ctaUrl: `${siteUrl}/contact`,
+    }),
+  })
+}
+
 export async function sendMemberEmail({
   to,
   subject,

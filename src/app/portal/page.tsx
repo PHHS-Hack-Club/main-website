@@ -114,6 +114,26 @@ export default async function PortalPage() {
         )}
       </section>
 
+      {/* Club Email */}
+      <section>
+        <Link
+          href="/portal/mail"
+          className="card card-interactive"
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', textDecoration: 'none' }}
+        >
+          <div>
+            <p style={{ margin: '0 0 0.2rem', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--dim)', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              Club Email
+            </p>
+            <strong style={{ fontSize: '0.95rem' }}>@phhshack.club mailbox</strong>
+            <p style={{ margin: '0.25rem 0 0', color: 'var(--muted)', fontSize: '0.82rem' }}>
+              Request or manage your club email address
+            </p>
+          </div>
+          <span style={{ color: 'var(--dim)', fontSize: '1.2rem', flexShrink: 0 }}>→</span>
+        </Link>
+      </section>
+
       {/* Devlogs */}
       <section className="stack">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>

@@ -83,6 +83,8 @@ model Member {
   mailbox       Mailbox?       @relation("MailboxOwner")
   emailRequests EmailRequest[] @relation("EmailRequestOwner")
   passwordSetupTokens PasswordSetupToken[] @relation("PasswordSetupTokenOwner")
+  auditActed    MailAuditLog[] @relation("MailAuditActor")
+  auditSubject  MailAuditLog[] @relation("MailAuditSubject")
 
   @@map("members")
 }
@@ -278,6 +280,7 @@ model Mailbox {
 
   member      Member               @relation("MailboxOwner", fields: [memberId], references: [id], onDelete: Restrict)
   setupTokens PasswordSetupToken[] @relation("MailboxSetupTokens")
+  auditLogs   MailAuditLog[]       @relation("MailAuditMailbox")
 
   @@unique([localPart, domain])
   @@index([status])
@@ -311,6 +314,10 @@ model MailAuditLog {
   emailRequestId  String?         @map("email_request_id")
   metadata        Json?
   createdAt       DateTime        @default(now()) @map("created_at")
+
+  actor   Member?  @relation("MailAuditActor", fields: [actorMemberId], references: [id], onDelete: SetNull)
+  subject Member?  @relation("MailAuditSubject", fields: [subjectMemberId], references: [id], onDelete: SetNull)
+  mailbox Mailbox? @relation("MailAuditMailbox", fields: [mailboxId], references: [id], onDelete: SetNull)
 
   @@index([subjectMemberId])
   @@index([createdAt])

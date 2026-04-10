@@ -20,6 +20,8 @@ export default async function AdminPage() {
     nextMeeting,
     lastMeeting,
     recentSubmissions,
+    pendingMailRequests,
+    activeMailboxes,
   ] = await Promise.all([
     prisma.member.count(),
     prisma.verificationRequest.count({ where: { status: 'PENDING' } }),
@@ -40,6 +42,8 @@ export default async function AdminPage() {
       take: 5,
       select: { id: true, title: true, status: true, updatedAt: true, member: { select: { name: true } } },
     }),
+    prisma.emailRequest.count({ where: { status: 'PENDING' } }),
+    prisma.mailbox.count({ where: { status: 'ACTIVE' } }),
   ])
 
   // Last meeting attendance rate
@@ -88,6 +92,35 @@ export default async function AdminPage() {
             <p style={{ fontSize: '2.5rem', fontWeight: 800, margin: 0, color: pendingDevlogs > 0 ? 'var(--orange)' : 'var(--text)' }}>
               {pendingDevlogs}
             </p>
+          </Link>
+          <Link href="/admin/mail/requests" className="card card-interactive">
+            <p style={{ color: 'var(--muted)', marginTop: 0, marginBottom: '0.5rem', fontSize: '0.85rem' }}>Mail Requests</p>
+            <p style={{ fontSize: '2.5rem', fontWeight: 800, margin: 0, color: pendingMailRequests > 0 ? 'var(--red)' : 'var(--text)' }}>
+              {pendingMailRequests}
+            </p>
+          </Link>
+        </div>
+      </section>
+
+      {/* Club Email quick links */}
+      <section className="stack">
+        <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', letterSpacing: '0.1em', fontWeight: 700 }}>
+          CLUB EMAIL
+        </p>
+        <div className="grid-cards">
+          <Link href="/admin/mail/mailboxes" className="card card-interactive">
+            <p style={{ color: 'var(--muted)', marginTop: 0, marginBottom: '0.5rem', fontSize: '0.85rem' }}>Active Mailboxes</p>
+            <p style={{ fontSize: '2.5rem', fontWeight: 800, margin: 0 }}>{activeMailboxes}</p>
+          </Link>
+          <Link href="/admin/mail/requests" className="card card-interactive">
+            <p style={{ color: 'var(--muted)', marginTop: 0, marginBottom: '0.5rem', fontSize: '0.85rem' }}>Pending Requests</p>
+            <p style={{ fontSize: '2.5rem', fontWeight: 800, margin: 0, color: pendingMailRequests > 0 ? 'var(--red)' : 'var(--text)' }}>
+              {pendingMailRequests}
+            </p>
+          </Link>
+          <Link href="/admin/mail/audit" className="card card-interactive">
+            <p style={{ color: 'var(--muted)', marginTop: 0, marginBottom: '0.5rem', fontSize: '0.85rem' }}>Audit Log</p>
+            <p style={{ fontSize: '1rem', fontWeight: 700, margin: 0, color: 'var(--muted)', fontFamily: 'var(--font-mono)' }}>→</p>
           </Link>
         </div>
       </section>
