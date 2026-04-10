@@ -82,6 +82,7 @@ model Member {
   mailingListEntry  MailingListEntry[]
   mailbox       Mailbox?       @relation("MailboxOwner")
   emailRequests EmailRequest[] @relation("EmailRequestOwner")
+  passwordSetupTokens PasswordSetupToken[] @relation("PasswordSetupTokenOwner")
 
   @@map("members")
 }
@@ -275,7 +276,8 @@ model Mailbox {
   createdAt        DateTime      @default(now()) @map("created_at")
   updatedAt        DateTime      @updatedAt @map("updated_at")
 
-  member Member @relation("MailboxOwner", fields: [memberId], references: [id], onDelete: Restrict)
+  member      Member               @relation("MailboxOwner", fields: [memberId], references: [id], onDelete: Restrict)
+  setupTokens PasswordSetupToken[] @relation("MailboxSetupTokens")
 
   @@unique([localPart, domain])
   @@index([status])
@@ -292,7 +294,11 @@ model PasswordSetupToken {
   issuedByMemberId String?   @map("issued_by_member_id")
   createdAt        DateTime  @default(now()) @map("created_at")
 
+  member  Member  @relation("PasswordSetupTokenOwner", fields: [memberId], references: [id], onDelete: Cascade)
+  mailbox Mailbox @relation("MailboxSetupTokens", fields: [mailboxId], references: [id], onDelete: Cascade)
+
   @@index([memberId])
+  @@index([mailboxId])
   @@map("password_setup_tokens")
 }
 
