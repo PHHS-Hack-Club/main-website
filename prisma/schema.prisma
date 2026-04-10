@@ -26,6 +26,39 @@ enum VerificationStatus {
   DENIED
 }
 
+enum MailboxStatus {
+  PROVISIONED_AWAITING_PASSWORD
+  ACTIVE
+  SUSPENDED
+  PENDING_DELETION
+  DELETED
+}
+
+enum EmailRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum MailAuditAction {
+  EMAIL_REQUEST_CREATED
+  EMAIL_REQUEST_EDITED
+  EMAIL_REQUEST_APPROVED
+  EMAIL_REQUEST_REJECTED
+  EMAIL_REQUEST_CANCELLED
+  MAILBOX_PROVISIONED
+  MAILBOX_PROVISION_FAILED
+  PASSWORD_SETUP_TOKEN_ISSUED
+  PASSWORD_SET_INITIAL
+  PASSWORD_CHANGED
+  PASSWORD_RESET_BY_ADMIN
+  MAILBOX_SUSPENDED
+  MAILBOX_UNSUSPENDED
+  MAILBOX_DELETION_SCHEDULED
+  MAILBOX_DELETED
+}
+
 model Member {
   id          String   @id @default(cuid())
   hackClubSub String   @unique @map("hack_club_sub")
@@ -47,6 +80,8 @@ model Member {
   devlogs  Devlog[]
   attendanceRecords AttendanceRecord[]
   mailingListEntry  MailingListEntry[]
+  mailbox       Mailbox?       @relation("MailboxOwner")
+  emailRequests EmailRequest[] @relation("EmailRequestOwner")
 
   @@map("members")
 }
@@ -201,4 +236,85 @@ model Sponsor {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("sponsors")
+}
+
+model EmailRequest {
+  id                  String             @id @default(cuid())
+  memberId            String             @map("member_id")
+  requestedLocalPart  String             @map("requested_local_part")
+  domain              String             @default("phhshack.club")
+  status              EmailRequestStatus @default(PENDING)
+  adminOverride       Boolean            @default(false) @map("admin_override")
+  adminOverrideReason String?            @map("admin_override_reason")
+  rejectionReason     String?            @map("rejection_reason")
+  lastError           String?            @map("last_error")
+  reviewedByMemberId  String?            @map("reviewed_by_member_id")
+  reviewedAt          DateTime?          @map("reviewed_at")
+  createdAt           DateTime           @default(now()) @map("created_at")
+  updatedAt           DateTime           @updatedAt @map("updated_at")
+
+  member Member @relation("EmailRequestOwner", fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@index([status])
+  @@map("email_requests")
+}
+
+model Mailbox {
+  id               String        @id @default(cuid())
+  memberId         String        @unique @map("member_id")
+  localPart        String        @map("local_part")
+  domain           String        @default("phhshack.club")
+  status           MailboxStatus
+  purelymailUserId String?       @map("purelymail_user_id")
+  provisionedAt    DateTime?     @map("provisioned_at")
+  activatedAt      DateTime?     @map("activated_at")
+  suspendedAt      DateTime?     @map("suspended_at")
+  deleteAfter      DateTime?     @map("delete_after")
+  deletedAt        DateTime?     @map("deleted_at")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  member Member @relation("MailboxOwner", fields: [memberId], references: [id], onDelete: Restrict)
+
+  @@unique([localPart, domain])
+  @@index([status])
+  @@map("mailboxes")
+}
+
+model PasswordSetupToken {
+  id               String    @id @default(cuid())
+  memberId         String    @map("member_id")
+  mailboxId        String    @map("mailbox_id")
+  tokenHash        String    @unique @map("token_hash")
+  expiresAt        DateTime  @map("expires_at")
+  consumedAt       DateTime? @map("consumed_at")
+  issuedByMemberId String?   @map("issued_by_member_id")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  @@index([memberId])
+  @@map("password_setup_tokens")
+}
+
+model MailAuditLog {
+  id              String          @id @default(cuid())
+  action          MailAuditAction
+  actorMemberId   String?         @map("actor_member_id")
+  subjectMemberId String?         @map("subject_member_id")
+  mailboxId       String?         @map("mailbox_id")
+  emailRequestId  String?         @map("email_request_id")
+  metadata        Json?
+  createdAt       DateTime        @default(now()) @map("created_at")
+
+  @@index([subjectMemberId])
+  @@index([createdAt])
+  @@map("mail_audit_log")
+}
+
+model ReservedLocalPart {
+  localPart String   @id @map("local_part")
+  reason    String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("reserved_local_parts")
 }

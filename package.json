@@ -11,7 +11,8 @@
     "smtp:test": "node scripts/test-smtp.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "db:seed:reserved": "tsx prisma/seed-reserved-local-parts.ts"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",
@@ -36,6 +37,7 @@
     "eslint": "8.57.1",
     "eslint-config-next": "14.2.35",
     "prisma": "5.22.0",
+    "tsx": "^4.21.0",
     "typescript": "5.9.3",
     "vitest": "^4.1.4"
   }
