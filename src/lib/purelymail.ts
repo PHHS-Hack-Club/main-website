@@ -113,19 +113,22 @@ export function getPurelymailClient(): PurelymailClient {
     },
 
     async setPassword(localPart, newPassword) {
+      const domain = requireEnv('PURELYMAIL_DOMAIN')
       await callApi('/api/v0/modifyUser', {
-        userName: localPart,
+        userName: `${localPart}@${domain}`,
         newPassword,
       })
     },
 
     async deleteUser(localPart) {
-      await callApi('/api/v0/deleteUser', { userName: localPart })
+      const domain = requireEnv('PURELYMAIL_DOMAIN')
+      await callApi('/api/v0/deleteUser', { userName: `${localPart}@${domain}` })
     },
 
     async getUser(localPart) {
+      const domain = requireEnv('PURELYMAIL_DOMAIN')
       try {
-        await callApi('/api/v0/getUser', { userName: localPart })
+        await callApi('/api/v0/getUser', { userName: `${localPart}@${domain}` })
         return { exists: true }
       } catch (e) {
         if (e instanceof PurelymailError && e.httpStatus === 404) return { exists: false }

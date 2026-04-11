@@ -75,7 +75,7 @@ describe('PurelymailClient', () => {
     expect(url).toBe('https://purelymail.com/api/v0/modifyUser')
     const body = JSON.parse((init as RequestInit).body as string)
     expect(body.newPassword).toBe('newpassword1234')
-    expect(body.userName).toBe('alexradu')
+    expect(body.userName).toBe('alexradu@phhshack.club')
   })
 
   it('deleteUser calls deleteUser endpoint', async () => {
