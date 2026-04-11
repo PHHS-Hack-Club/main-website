@@ -48,7 +48,6 @@ export async function POST(
 
   // Fire-and-forget rejection email
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const email = await import('@/lib/email') as any
     if (typeof email.sendMailRequestRejectedToMember === 'function') {
       await email.sendMailRequestRejectedToMember({

@@ -38,7 +38,12 @@ export async function POST(
   await prisma.$transaction(async (tx) => {
     await tx.mailbox.update({
       where: { id },
-      data: { status: 'DELETED', deletedAt: now, deleteAfter: null },
+      data: {
+        status: 'DELETED',
+        deletedAt: now,
+        deleteAfter: null,
+        ssoPasswordCiphertext: null,
+      },
     })
     await writeMailAudit(
       {

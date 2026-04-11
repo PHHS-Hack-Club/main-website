@@ -30,7 +30,11 @@ export async function POST(
   await prisma.$transaction(async (tx) => {
     await tx.mailbox.update({
       where: { id },
-      data: { status: 'SUSPENDED', suspendedAt: new Date() },
+      data: {
+        status: 'SUSPENDED',
+        suspendedAt: new Date(),
+        ssoPasswordCiphertext: null,
+      },
     })
     await writeMailAudit(
       {
@@ -45,7 +49,6 @@ export async function POST(
 
   // Fire-and-forget email
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const email = await import('@/lib/email') as any
     if (typeof email.sendMailSuspendedToMember === 'function') {
       const member = await prisma.member.findUnique({ where: { id: mailbox.memberId } })

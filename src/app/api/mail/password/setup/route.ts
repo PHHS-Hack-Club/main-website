@@ -5,6 +5,7 @@ import { verifyAndConsumeSetupToken } from '@/lib/mail-tokens'
 import { getPurelymailClient } from '@/lib/purelymail'
 import { writeMailAudit } from '@/lib/mail-audit'
 import { rateLimit } from '@/lib/rate-limit'
+import { encryptMailboxPassword } from '@/lib/mail-sso'
 
 function validatePassword(password: string): string | null {
   if (typeof password !== 'string') return 'Password is required'
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest) {
 
   const passwordError = validatePassword(password)
   if (passwordError) return NextResponse.json({ error: passwordError }, { status: 400 })
+  const ssoPasswordCiphertext = encryptMailboxPassword(password)
 
   const tokenResult = await verifyAndConsumeSetupToken(token, session.memberId)
   if (!tokenResult) {
@@ -56,7 +58,11 @@ export async function POST(req: NextRequest) {
   await prisma.$transaction(async (tx) => {
     await tx.mailbox.update({
       where: { id: mailbox.id },
-      data: { status: 'ACTIVE', activatedAt: now },
+      data: {
+        status: 'ACTIVE',
+        activatedAt: now,
+        ssoPasswordCiphertext,
+      },
     })
     await writeMailAudit(
       {

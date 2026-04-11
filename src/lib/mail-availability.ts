@@ -11,6 +11,9 @@ const COOLDOWN_DAYS = 180
 export async function checkCandidateAvailability(
   localParts: string[],
   domain: string,
+  options?: {
+    excludePendingRequestId?: string
+  },
 ): Promise<Map<string, CandidateAvailability>> {
   if (localParts.length === 0) return new Map()
 
@@ -43,6 +46,9 @@ export async function checkCandidateAvailability(
         requestedLocalPart: { in: localParts },
         domain,
         status: 'PENDING',
+        ...(options?.excludePendingRequestId
+          ? { id: { not: options.excludePendingRequestId } }
+          : {}),
       },
       select: { requestedLocalPart: true },
     }),

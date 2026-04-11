@@ -9,8 +9,12 @@ export default function MailSettingsPage() {
   const [stepUpReady, setStepUpReady] = useState<boolean | null>(null)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
+  const [syncPassword, setSyncPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [syncing, setSyncing] = useState(false)
   const [error, setError] = useState('')
+  const [syncError, setSyncError] = useState('')
+  const [syncDone, setSyncDone] = useState(false)
   const [done, setDone] = useState(false)
 
   // Check if step-up proof cookie is present by probing the change endpoint
@@ -50,6 +54,32 @@ export default function MailSettingsPage() {
       }
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  async function handleSync(e: React.FormEvent) {
+    e.preventDefault()
+    setSyncing(true)
+    setSyncError('')
+    try {
+      const res = await fetch('/api/mail/sso/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword: syncPassword }),
+      })
+      if (res.ok) {
+        setSyncDone(true)
+        setSyncPassword('')
+      } else {
+        const body = await res.json().catch(() => ({}))
+        if (res.status === 403 || body.error?.includes('step')) {
+          router.push('/portal/reauth?return=/portal/mail/settings')
+          return
+        }
+        setSyncError(body.error || 'Failed to enable webmail SSO.')
+      }
+    } finally {
+      setSyncing(false)
     }
   }
 
@@ -137,6 +167,51 @@ export default function MailSettingsPage() {
           <Link href="/portal/mail" style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>
             Cancel
           </Link>
+        </div>
+      </form>
+
+      <form onSubmit={handleSync} className="card stack" style={{ gap: '1rem' }}>
+        <div>
+          <p style={{ margin: '0 0 0.35rem', color: 'var(--fg)', fontSize: '0.95rem', fontWeight: 700 }}>
+            Enable webmail SSO without changing your password
+          </p>
+          <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.85rem' }}>
+            Enter your current mailbox password once and the portal will store an encrypted copy so the PHHS site can sign you into SnappyMail automatically.
+          </p>
+        </div>
+
+        <div>
+          <label style={{ display: 'block', fontSize: '0.8rem', fontFamily: 'var(--font-mono)', color: 'var(--muted)', fontWeight: 700, marginBottom: '0.4rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            Current mailbox password
+          </label>
+          <input
+            type="password"
+            value={syncPassword}
+            onChange={(e) => setSyncPassword(e.target.value)}
+            required
+            placeholder="Enter your current mailbox password"
+            style={{ width: '100%', boxSizing: 'border-box' }}
+          />
+        </div>
+
+        {syncError && (
+          <p style={{ color: '#ec3750', margin: 0, fontSize: '0.88rem' }}>{syncError}</p>
+        )}
+
+        {syncDone && (
+          <p style={{ color: '#4ade80', margin: 0, fontSize: '0.88rem' }}>
+            Webmail SSO is enabled for this mailbox.
+          </p>
+        )}
+
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <button
+            type="submit"
+            className="btn-outline"
+            disabled={syncing || !syncPassword}
+          >
+            {syncing ? 'Enabling…' : 'Enable webmail SSO'}
+          </button>
         </div>
       </form>
 

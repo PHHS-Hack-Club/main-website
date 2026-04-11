@@ -4,7 +4,6 @@ import { provisionMailbox } from '@/lib/mail-provisioning'
 
 async function sendApprovedEmail(memberEmail: string, memberName: string, localPart: string, domain: string, setupUrl: string) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const email = await import('@/lib/email') as any
     if (typeof email.sendMailRequestApprovedToMember === 'function') {
       await email.sendMailRequestApprovedToMember({ memberEmail, memberName, fullAddress: `${localPart}@${domain}`, setupUrl })

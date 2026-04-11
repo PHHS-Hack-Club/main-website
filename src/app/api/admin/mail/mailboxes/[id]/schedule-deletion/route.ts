@@ -42,7 +42,6 @@ export async function POST(
 
   // Fire-and-forget warning email
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const email = await import('@/lib/email') as any
     if (typeof email.sendMailDeletionWarningToMember === 'function') {
       const member = await prisma.member.findUnique({ where: { id: mailbox.memberId } })

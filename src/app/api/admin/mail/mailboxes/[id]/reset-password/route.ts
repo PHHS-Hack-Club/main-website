@@ -32,7 +32,10 @@ export async function POST(
     }
     await prisma.mailbox.update({
       where: { id },
-      data: { status: 'PROVISIONED_AWAITING_PASSWORD' },
+      data: {
+        status: 'PROVISIONED_AWAITING_PASSWORD',
+        ssoPasswordCiphertext: null,
+      },
     })
   }
 
@@ -55,7 +58,6 @@ export async function POST(
 
   // Email the member
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const email = await import('@/lib/email') as any
     if (typeof email.sendMailRequestApprovedToMember === 'function') {
       const member = await prisma.member.findUnique({ where: { id: mailbox.memberId } })

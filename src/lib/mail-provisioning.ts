@@ -47,7 +47,9 @@ export async function provisionMailbox(params: {
   if (!isValidLocalPart(finalLocalPart)) throw new Error('Invalid local part')
 
   // Check reserved & collision
-  const avail = await checkCandidateAvailability([finalLocalPart], domain)
+  const avail = await checkCandidateAvailability([finalLocalPart], domain, {
+    excludePendingRequestId: emailRequest.id,
+  })
   const availability = avail.get(finalLocalPart)
   if (!availability?.available) {
     throw new Error(`Address unavailable: ${availability?.reason ?? 'unknown'}`)

@@ -5,14 +5,52 @@ import { prisma } from '@/lib/prisma'
 import MailRequestFormClient from './MailRequestFormClient'
 import CancelRequestButton from './CancelRequestButton'
 
-export default async function MailPortalPage() {
+function ssoMessageFromSearchParams(
+  searchParams: Record<string, string | string[] | undefined>,
+): string | null {
+  const raw = searchParams.sso
+  const value = Array.isArray(raw) ? raw[0] : raw
+
+  if (value === 'needs-password-sync') {
+    return 'Webmail SSO needs your current mailbox password synced again. Update it in Mail Settings, then try the webmail button again.'
+  }
+
+  if (value === 'failed') {
+    return 'Webmail SSO failed. If this keeps happening, change your mailbox password in the portal to resync it.'
+  }
+
+  if (value === 'misconfigured') {
+    return 'Webmail SSO is temporarily unavailable because the site is missing required configuration.'
+  }
+
+  if (value === 'inactive') {
+    return 'Webmail SSO is only available for active mailboxes.'
+  }
+
+  return null
+}
+
+export default async function MailPortalPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}) {
   const session = await getSession()
   if (!session) redirect('/')
+  const resolvedSearchParams = await searchParams
+  const ssoMessage = ssoMessageFromSearchParams(resolvedSearchParams)
 
   // Fetch mailbox + latest email request in parallel
   const [mailbox, latestRequest] = await Promise.all([
     prisma.mailbox.findUnique({
       where: { memberId: session.memberId },
+      select: {
+        localPart: true,
+        domain: true,
+        status: true,
+        createdAt: true,
+        ssoPasswordCiphertext: true,
+      },
     }),
     prisma.emailRequest.findFirst({
       where: { memberId: session.memberId },
@@ -22,7 +60,12 @@ export default async function MailPortalPage() {
 
   // State: has an active (non-deleted) mailbox
   if (mailbox && mailbox.status !== 'DELETED') {
-    return <MailboxActiveView mailbox={mailbox} />
+    return (
+      <MailboxActiveView
+        mailbox={mailbox}
+        ssoMessage={ssoMessage}
+      />
+    )
   }
 
   // State: no request yet
@@ -154,16 +197,20 @@ function RequestRejectedView({
 
 function MailboxActiveView({
   mailbox,
+  ssoMessage,
 }: {
   mailbox: {
     localPart: string
     domain: string
     status: string
     createdAt: Date
+    ssoPasswordCiphertext: string | null
   }
+  ssoMessage: string | null
 }) {
   const fullAddress = `${mailbox.localPart}@${mailbox.domain}`
   const webmailUrl = 'https://mail.phhshack.club'
+  const hasStoredSsoPassword = Boolean(mailbox.ssoPasswordCiphertext)
 
   const statusLabel: Record<string, string> = {
     ACTIVE: 'Active',
@@ -190,6 +237,14 @@ function MailboxActiveView({
 
       <div className="card">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {ssoMessage && (
+            <div style={{ background: 'rgba(236,55,80,0.08)', border: '1px solid rgba(236,55,80,0.25)', borderRadius: 8, padding: '0.75rem 1rem' }}>
+              <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.88rem' }}>
+                {ssoMessage}
+              </p>
+            </div>
+          )}
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
             <span
               style={{
@@ -238,20 +293,40 @@ function MailboxActiveView({
             </div>
           )}
 
+          {mailbox.status === 'ACTIVE' && !hasStoredSsoPassword && (
+            <div style={{ background: 'rgba(247,201,72,0.08)', border: '1px solid rgba(247,201,72,0.25)', borderRadius: 8, padding: '0.75rem 1rem' }}>
+              <p style={{ margin: '0 0 0.35rem', color: '#f7c948', fontSize: '0.88rem', fontWeight: 700 }}>
+                Webmail SSO setup required
+              </p>
+              <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.85rem' }}>
+                Change your mailbox password in the portal once. After that, the webmail button will sign you in automatically.
+              </p>
+            </div>
+          )}
+
           <p style={{ color: 'var(--dim)', margin: 0, fontSize: '0.78rem', fontFamily: 'var(--font-mono)' }}>
             created {mailbox.createdAt.toLocaleDateString()}
           </p>
 
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {mailbox.status === 'ACTIVE' && hasStoredSsoPassword && (
+              <a
+                href="/api/mail/sso"
+                className="btn-primary"
+                style={{ fontSize: '0.88rem' }}
+              >
+                Open webmail →
+              </a>
+            )}
             {mailbox.status === 'ACTIVE' && (
               <a
                 href={webmailUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-primary"
+                className="btn-outline"
                 style={{ fontSize: '0.88rem' }}
               >
-                Open webmail →
+                Open direct login
               </a>
             )}
             {mailbox.status === 'ACTIVE' && (

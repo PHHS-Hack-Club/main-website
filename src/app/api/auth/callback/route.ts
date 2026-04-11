@@ -11,8 +11,16 @@ function siteUrl(path: string) {
   return new URL(path, base)
 }
 
+function sanitizeReturnPath(value: string | null): string | null {
+  if (!value) return null
+  if (!value.startsWith('/')) return null
+  if (value.startsWith('//')) return null
+  return value
+}
+
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('code')
+  const returnTo = sanitizeReturnPath(request.cookies.get('auth_return')?.value ?? null)
 
   if (!code) {
     return NextResponse.redirect(siteUrl('/?error=no_code'))
@@ -85,8 +93,12 @@ export async function GET(request: NextRequest) {
       username: member.username,
     })
 
-    const response = NextResponse.redirect(siteUrl('/portal'))
+    const response = NextResponse.redirect(siteUrl(returnTo || '/portal'))
     setSessionCookie(response, token)
+    response.cookies.set('auth_return', '', {
+      expires: new Date(0),
+      path: '/',
+    })
     return response
   }
 
@@ -111,8 +123,12 @@ export async function GET(request: NextRequest) {
       username: created.username,
     })
 
-    const response = NextResponse.redirect(siteUrl('/portal'))
+    const response = NextResponse.redirect(siteUrl(returnTo || '/portal'))
     setSessionCookie(response, token)
+    response.cookies.set('auth_return', '', {
+      expires: new Date(0),
+      path: '/',
+    })
     return response
   }
 

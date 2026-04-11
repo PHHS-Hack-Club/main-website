@@ -8,7 +8,6 @@ import { rateLimit } from '@/lib/rate-limit'
 
 async function notifyAdmins(memberName: string, localPart: string, domain: string) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const email = await import('@/lib/email') as any
     if (typeof email.sendMailRequestSubmittedToAdmins === 'function') {
       const baseUrl = process.env.NEXT_PUBLIC_URL || 'http://localhost:3007'

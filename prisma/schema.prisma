@@ -269,6 +269,7 @@ model Mailbox {
   localPart        String        @map("local_part")
   domain           String        @default("phhshack.club")
   status           MailboxStatus
+  ssoPasswordCiphertext String?  @map("sso_password_ciphertext")
   purelymailUserId String?       @map("purelymail_user_id")
   provisionedAt    DateTime?     @map("provisioned_at")
   activatedAt      DateTime?     @map("activated_at")

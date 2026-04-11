@@ -13,7 +13,6 @@ async function sendDeletionWarning(
   daysRemaining: number,
 ) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const email = await import('@/lib/email') as any
     if (typeof email.sendMailDeletionWarningToMember === 'function') {
       await email.sendMailDeletionWarningToMember({ memberEmail, memberName, fullAddress, deleteAfter, daysRemaining })

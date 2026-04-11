@@ -5,6 +5,7 @@ import { verifyStepUpProof } from '@/lib/step-up'
 import { getPurelymailClient } from '@/lib/purelymail'
 import { writeMailAudit } from '@/lib/mail-audit'
 import { rateLimit } from '@/lib/rate-limit'
+import { encryptMailboxPassword } from '@/lib/mail-sso'
 
 function validatePassword(password: string): string | null {
   if (typeof password !== 'string') return 'Password is required'
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
 
   const passwordError = validatePassword(newPassword)
   if (passwordError) return NextResponse.json({ error: passwordError }, { status: 400 })
+  const ssoPasswordCiphertext = encryptMailboxPassword(newPassword)
 
   const mailbox = await prisma.mailbox.findUnique({
     where: { memberId: session.memberId },
@@ -51,16 +53,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to update password. Please try again.' }, { status: 502 })
   }
 
-  await writeMailAudit({
-    action: 'PASSWORD_CHANGED',
-    actorMemberId: session.memberId,
-    subjectMemberId: session.memberId,
-    mailboxId: mailbox.id,
+  await prisma.$transaction(async (tx) => {
+    await tx.mailbox.update({
+      where: { id: mailbox.id },
+      data: { ssoPasswordCiphertext },
+    })
+    await writeMailAudit({
+      action: 'PASSWORD_CHANGED',
+      actorMemberId: session.memberId,
+      subjectMemberId: session.memberId,
+      mailboxId: mailbox.id,
+    }, tx)
   })
 
   // Fire-and-forget notification
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const email = await import('@/lib/email') as any
     if (typeof email.sendMailPasswordChangedToMember === 'function') {
       await email.sendMailPasswordChangedToMember({
