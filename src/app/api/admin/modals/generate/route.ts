@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
         Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': process.env.NEXT_PUBLIC_URL || 'http://localhost:3007',
-        'X-Title': 'PHHS Hack Club',
+        'X-Title': 'PHHS Coding Club',
       },
       body: JSON.stringify({
         model: 'anthropic/claude-haiku-4-5',
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
           {
             role: 'system',
             content:
-              'You write announcement modal content for PHHS Hack Club — the Hack Club chapter at Pascack Hills High School in Montvale, New Jersey.\n\n' +
+              'You write announcement modal content for PHHS Coding Club — the Hack Club chapter at Pascack Hills High School in Montvale, New Jersey.\n\n' +
               'Background on Hack Club:\n' +
               'Hack Club is a global 501(c)(3) nonprofit (EIN: 81-2908499) network of over 1,000 student-led high school coding clubs, with 105,892+ teen members worldwide. ' +
               'The philosophy is "learn by building" — every meeting, members ship a real project. No lectures, no busy work, just making things. ' +
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
               'Hack Club has a global Slack with 2,160+ people online at any time, 109,985 daily messages, and 24,808 channels. ' +
               'They\'ve hosted AMAs with people like Sal Khan and George Hotz. HCB (Hack Club Bank) has raised $58M+ for student-run events. ' +
               'The culture is deeply hacker: open source, curious, late nights, wild ideas, and genuine excitement about building things. Very anti-corporate.\n\n' +
-              'PHHS Hack Club is student-run, meets after school, and is part of this global network.\n\n' +
+              'PHHS Coding Club is student-run, meets after school, and is part of this global network.\n\n' +
               'Your job: given a topic or prompt from a club admin, write a modal heading (punchy, max 8 words, no trailing punctuation) and a body (1-3 sentences, conversational and energetic, written like a fellow student — not a teacher or a brand). ' +
               'Respond with ONLY valid JSON: {"heading":"...","body":"..."}. No markdown, no explanation, no extra keys.',
           },

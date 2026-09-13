@@ -40,7 +40,7 @@ export async function POST(
       sendMemberEmail({
         to: m.schoolEmail!,
         subject: announcement.title,
-        badge: "PHHS Hack Club Announcement",
+        badge: "PHHS Coding Club Announcement",
         heading: announcement.title,
         body: announcement.body,
         ctaLabel: "View on site",

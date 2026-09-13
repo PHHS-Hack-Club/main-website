@@ -60,12 +60,12 @@ try {
   }
 
   const from = process.env.SMTP_USER
-    ? `"PHHS Hack Club SMTP Test" <${process.env.SMTP_USER}>`
-    : 'PHHS Hack Club SMTP Test <no-reply@localhost>'
+    ? `"PHHS Coding Club SMTP Test" <${process.env.SMTP_USER}>`
+    : 'PHHS Coding Club SMTP Test <no-reply@localhost>'
 
-  const subject = `PHHS Hack Club SMTP Test ${new Date().toISOString()}`
+  const subject = `PHHS Coding Club SMTP Test ${new Date().toISOString()}`
   const text = [
-    'This is a test email from the PHHS Hack Club site.',
+    'This is a test email from the PHHS Coding Club site.',
     '',
     `SMTP host: ${process.env.SMTP_HOST}`,
     `SMTP port: ${process.env.SMTP_PORT}`,
@@ -78,7 +78,7 @@ try {
     subject,
     text,
     html: [
-      '<p>This is a test email from the PHHS Hack Club site.</p>',
+      '<p>This is a test email from the PHHS Coding Club site.</p>',
       '<ul>',
       `  <li><strong>SMTP host:</strong> ${process.env.SMTP_HOST}</li>`,
       `  <li><strong>SMTP port:</strong> ${process.env.SMTP_PORT}</li>`,

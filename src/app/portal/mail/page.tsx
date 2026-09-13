@@ -280,7 +280,7 @@ function MailboxActiveView({
                 Password setup required
               </p>
               <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.85rem' }}>
-                Check your personal email for a setup link from PHHS Hack Club.
+                Check your personal email for a setup link from PHHS Coding Club.
               </p>
             </div>
           )}

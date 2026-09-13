@@ -79,7 +79,7 @@ export default async function SponsorsPage() {
                 Back The Builders
               </h1>
               <p style={{ margin: 0, color: 'var(--muted)', maxWidth: 620, fontSize: '1rem', lineHeight: 1.7 }}>
-                PHHS Hack Club runs on momentum, laptops, weird side projects, and the people willing to help students keep making things. Sponsors help us turn weekly meetings into real shipped work.
+                PHHS Coding Club runs on momentum, laptops, weird side projects, and the people willing to help students keep making things. Sponsors help us turn weekly meetings into real shipped work.
               </p>
 
               <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.3rem' }}>
@@ -289,7 +289,7 @@ export default async function SponsorsPage() {
                       {sponsor.title}
                     </p>
                     <p style={{ margin: 0, color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.7 }}>
-                      {sponsor.description || 'Supporter of PHHS Hack Club.'}
+                      {sponsor.description || 'Supporter of PHHS Coding Club.'}
                     </p>
                   </div>
 

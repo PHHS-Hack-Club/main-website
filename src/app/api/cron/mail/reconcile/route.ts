@@ -51,7 +51,7 @@ async function run(request: NextRequest) {
       await transporter.sendMail({
         from: process.env.SMTP_USER,
         to: admins.map((a) => a.email).join(', '),
-        subject: '[PHHS Hack Club] Mail reconciliation drift detected',
+        subject: '[PHHS Coding Club] Mail reconciliation drift detected',
         text: `Drift detected between our DB and Purelymail:\n\n${JSON.stringify(mismatches, null, 2)}`,
       })
     } catch (e) {

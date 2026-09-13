@@ -100,7 +100,7 @@ export default async function GalleryPage() {
         <div className="animate-up">
           <p style={{ margin: '0 0 0.5rem', color: 'var(--muted)', fontSize: '0.7rem', letterSpacing: '0.12em', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{'// GALLERY'}</p>
           <h1 className="glow-red" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>What we&apos;ve built.</h1>
-          <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.95rem' }}>Approved projects and devlogs from PHHS Hack Club members.</p>
+          <p style={{ color: 'var(--muted)', margin: 0, fontSize: '0.95rem' }}>Approved projects and devlogs from PHHS Coding Club members.</p>
         </div>
 
         <GallerySearch projects={serializedProjects} devlogs={serializedDevlogs} />

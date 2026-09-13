@@ -20,12 +20,12 @@ export async function generateMetadata({
     },
   });
 
-  if (!project) return { title: "Project · PHHS Hack Club" };
+  if (!project) return { title: "Project · PHHS Coding Club" };
 
-  const title = `${project.title || "Untitled"} · PHHS Hack Club`;
+  const title = `${project.title || "Untitled"} · PHHS Coding Club`;
   const description = project.description
     ? project.description.replace(/[#*`_~[\]]/g, "").slice(0, 160)
-    : `A project by ${project.member.name} at PHHS Hack Club.`;
+    : `A project by ${project.member.name} at PHHS Coding Club.`;
   const image = project.images[0]
     ? getFileUrl(project.images[0].minioKey)
     : undefined;

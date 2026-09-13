@@ -21,7 +21,7 @@ export default function Footer() {
         }}
       >
         <p style={{ margin: 0, color: 'var(--dim)', fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>
-          &copy; {new Date().getFullYear()} PHHS Hack Club
+          &copy; {new Date().getFullYear()} PHHS Coding Club
         </p>
         <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
           <Link href="https://hackclub.com" target="_blank" rel="noreferrer" style={{ color: 'var(--muted)', fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '0.02em' }}>

@@ -165,12 +165,12 @@ export default function Navbar({ authButton }: { authButton: ReactNode }) {
         >
           <img
             src="/logos/phhs-hack-club-logo-trans.png"
-            alt="PHHS Hack Club"
+            alt="PHHS Coding Club"
             className="nav-brand-logo"
           />
           <span className="nav-brand-text">
             <span className="nav-brand-name">PHHS</span>
-            <span className="nav-brand-accent">Hack Club</span>
+            <span className="nav-brand-accent">Coding Club</span>
           </span>
         </Link>
 

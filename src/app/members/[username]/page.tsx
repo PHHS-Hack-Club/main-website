@@ -157,15 +157,15 @@ export async function generateMetadata({
     },
   })
 
-  if (!member) return { title: 'Member · PHHS Hack Club' }
+  if (!member) return { title: 'Member · PHHS Coding Club' }
 
   const latestProject = member.projects[0]
-  const title = `${member.name} · PHHS Hack Club`
+  const title = `${member.name} · PHHS Coding Club`
   const description = (member.bio ||
     member.headline ||
     (latestProject?.title
-      ? `${member.name}'s projects and devlogs at PHHS Hack Club, including ${latestProject.title}.`
-      : `${member.name}'s member page at PHHS Hack Club.`)).slice(0, 160)
+      ? `${member.name}'s projects and devlogs at PHHS Coding Club, including ${latestProject.title}.`
+      : `${member.name}'s member page at PHHS Coding Club.`)).slice(0, 160)
   const image = latestProject?.images[0]
     ? getFileUrl(latestProject.images[0].minioKey)
     : member.headshotKey

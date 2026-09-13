@@ -116,7 +116,7 @@ export default async function HomePage({
             >
               PHHS
               <br />
-              Hack Club
+              Coding Club
             </h1>
             <p style={{ color: 'var(--muted)', fontSize: '1.05rem', maxWidth: 560, marginTop: '1rem' }}>
               Pascack Hills High School&apos;s chapter of the global Hack Club network. We meet weekly to make websites, games, hardware projects, art, and whatever else members want to bring to life.

@@ -42,7 +42,7 @@ export default function AboutPage() {
           <p style={{ margin: '0 0 0.5rem', color: 'var(--red)', fontWeight: 800, letterSpacing: '0.12em', fontSize: '0.72rem', fontFamily: 'var(--font-mono)' }}>{'// ABOUT THE CLUB'}</p>
           <h1 className="glow-red" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', margin: '0 0 1rem', letterSpacing: '-0.02em' }}>A room full of builders.</h1>
           <p style={{ color: 'var(--muted)', maxWidth: 680, lineHeight: 1.8, margin: 0, fontSize: '1rem' }}>
-            PHHS Hack Club is the Pascack Hills High School chapter of the global{' '}
+            PHHS Coding Club is the Pascack Hills High School chapter of the global{' '}
             <a href="https://hackclub.com" target="_blank" rel="noreferrer" style={{ color: 'var(--orange)' }}>Hack Club</a>{' '}
             network. We&apos;re a student-run club for people who want to make real things
             websites, games, hardware experiments, bots, 3D-printed objects, art, and whatever else.

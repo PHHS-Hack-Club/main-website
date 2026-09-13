@@ -24,12 +24,12 @@ export async function POST(request: NextRequest) {
 
   try {
     await createTransporter().sendMail({
-      from: process.env.SMTP_USER ? `"PHHS Hack Club Contact" <${process.env.SMTP_USER}>` : email,
+      from: process.env.SMTP_USER ? `"PHHS Coding Club (Pascack Hills) Contact" <${process.env.SMTP_USER}>` : email,
       to: 'al3x.radu1@gmail.com',
       replyTo: email,
-      subject: `PHHS Hack Club Contact: ${name}`,
-      text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
-      html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><hr /><p>${String(message).replace(/\n/g, '<br />')}</p>`,
+      subject: `PHHS Coding Club Contact: ${name}`,
+      text: `Pascack Hills High School (PHHS) Coding Club contact message\n\nName: ${name}\nEmail: ${email}\n\n${message}`,
+      html: `<p>Pascack Hills High School (PHHS) Coding Club contact message</p><p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><hr /><p>${String(message).replace(/\n/g, '<br />')}</p>`,
     })
 
     return NextResponse.json({ success: true })

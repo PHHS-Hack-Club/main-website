@@ -73,7 +73,7 @@ export default function SiteModal() {
                 fontFamily: 'var(--font-mono)',
                 textTransform: 'uppercase',
               }}>
-                {'// PHHS HACK CLUB'}
+                {'// PHHS CODING CLUB'}
               </p>
               <h2 className="glow-red" style={{ margin: 0, fontSize: 'clamp(1.25rem, 4vw, 1.6rem)', lineHeight: 1.2 }}>
                 {modal.heading}

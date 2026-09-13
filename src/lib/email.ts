@@ -12,7 +12,7 @@ function createTransporter() {
 }
 
 function senderAddress() {
-  return `"PHHS Hack Club" <${process.env.SMTP_USER}>`
+  return `"PHHS Coding Club (Pascack Hills)" <${process.env.SMTP_USER}>`
 }
 
 const meetingDateFmt = new Intl.DateTimeFormat('en-US', {
@@ -61,7 +61,7 @@ function emailTemplate({
                 <tr>
                   <td style="background:#ec3750;width:4px;border-radius:2px;">&nbsp;</td>
                   <td style="padding-left:12px;">
-                    <span style="font-size:13px;font-weight:800;letter-spacing:0.1em;color:#ec3750;text-transform:uppercase;font-family:monospace;">PHHS HACK CLUB</span>
+                    <span style="font-size:13px;font-weight:800;letter-spacing:0.1em;color:#ec3750;text-transform:uppercase;font-family:monospace;">PHHS CODING CLUB</span>
                   </td>
                 </tr>
               </table>
@@ -123,7 +123,7 @@ function emailTemplate({
           <tr>
             <td style="padding-top:24px;" align="center">
               <p style="margin:0;font-size:12px;color:#4a4a5a;font-family:monospace;">
-                Peninsula High School Hack Club &nbsp;·&nbsp; Admin notification
+                Pascack Hills High School (PHHS) Coding Club
               </p>
             </td>
           </tr>
@@ -152,7 +152,7 @@ export async function sendVerificationNotification({
     from: senderAddress(),
     to: process.env.ADMIN_EMAIL,
     subject: `New Verification Request: ${name}`,
-    text: `${name} (${email}) has requested to join PHHS Hack Club.\n\nReview their request here: ${adminUrl}`,
+    text: `${name} (${email}) has requested to join PHHS Coding Club.\n\nReview their request here: ${adminUrl}`,
     html: emailTemplate({
       preheader: `${name} wants to join the club`,
       badge: 'Verification Request',
@@ -297,7 +297,7 @@ export async function sendMailRequestApprovedToMember({
       preheader: `Your club email ${fullAddress} is approved — set your password`,
       badge: 'Email Approved',
       heading: 'Your club email is ready!',
-      body: `<p style="margin:0 0 12px;">Hi <strong style="color:#ffffff;">${memberName}</strong>! Your request for a PHHS Hack Club email address has been approved.</p><p style="margin:0 0 12px;">Your address: <span style="font-family:monospace;font-size:14px;background:#12121a;border:1px solid #2a2a38;border-radius:4px;padding:4px 10px;color:#ec3750;">${fullAddress}</span></p><p style="margin:0;color:#6a6a7a;font-size:13px;">The setup link expires in 24 hours.</p>`,
+      body: `<p style="margin:0 0 12px;">Hi <strong style="color:#ffffff;">${memberName}</strong>! Your request for a PHHS Coding Club email address has been approved.</p><p style="margin:0 0 12px;">Your address: <span style="font-family:monospace;font-size:14px;background:#12121a;border:1px solid #2a2a38;border-radius:4px;padding:4px 10px;color:#ec3750;">${fullAddress}</span></p><p style="margin:0;color:#6a6a7a;font-size:13px;">The setup link expires in 24 hours.</p>`,
       ctaLabel: 'Set your password',
       ctaUrl: setupUrl,
     }),

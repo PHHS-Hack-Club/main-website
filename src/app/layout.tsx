@@ -7,14 +7,14 @@ import NavAuthButton from '@/components/NavAuthButton'
 import SiteModal from '@/components/SiteModal'
 
 export const metadata: Metadata = {
-  title: 'PHHS Hack Club',
-  description: "Pascack Hills High School's Hack Club chapter. A student-led place to make projects, share them, and learn by doing.",
+  title: 'PHHS Coding Club',
+  description: "PHHS Coding Club at Pascack Hills High School, a chapter of the Hack Club network. A student-led place to make projects, share them, and learn by doing.",
   icons: {
     icon: '/favicon.ico',
   },
   openGraph: {
-    title: 'PHHS Hack Club',
-    description: "Pascack Hills High School's Hack Club chapter. A student-led place to make projects, share them, and learn by doing.",
+    title: 'PHHS Coding Club',
+    description: "PHHS Coding Club at Pascack Hills High School, a chapter of the Hack Club network. A student-led place to make projects, share them, and learn by doing.",
     images: ['https://assets.hackclub.com/flag-orpheus-top.png'],
   },
 }

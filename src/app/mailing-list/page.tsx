@@ -71,7 +71,7 @@ export default function MailingListPage() {
                 fontFamily: 'var(--font-mono)',
               }}
             >
-              {'// PHHS HACK CLUB'}
+              {'// PHHS CODING CLUB'}
             </p>
             <h1
               style={{
